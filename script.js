@@ -23,12 +23,14 @@ const divider = document.querySelector("#divider")
 
 let turn = true;
 let playerPieces;
+var available_moves;
+available_moves = [];
+let temp_id;
 
 let selectedPiece = {
     pieceID: -1,
     x_pos: -1,
     y_pos: -1,
-    available_moves: [],
 }
 
 
@@ -36,16 +38,20 @@ let selectedPiece = {
 function givePiecesEventListeners(){
     if(turn){
         for(let i=0;i< whitePieces.length;i++){
-            whitePieces[i].addEventListener("click",getPlayerPieces);
+            whitePieces[i].addEventListener("click",function(){temp(whitePieces[i].id);});
         }
     }else{
         for(let i=0;i<blackPieces.length;i++){
-            blackPieces[i].addEventListener("click",getPlayerPieces);
+            blackPieces[i].addEventListener("click",function(){temp(blackPieces[i].id);});
         }
     }
 }
-
+function temp(id){
+    temp_id = id;
+    getPlayerPieces();
+}
 function getPlayerPieces(){
+    
     if(turn){
         playerPieces = whitePieces;
     }else{
@@ -64,23 +70,24 @@ function removeCellonClick(){
 
 function resetBorders(){
     for(let i =0;i<playerPieces.length;i++){
-        playerPieces[i].style.boarder = "1px solid white";
+        playerPieces[i].style.border = "1px solid white";
     }
     resetSelectedPieceProperties();
     getSelectedPiece();
 }
 
 function resetSelectedPieceProperties(){
-    empty_array = []
+    
+    selectedPiece.pieceID = -1;
     selectedPiece.pieceID = -1;
     selectedPiece.x_pos = -1;
     selectedPiece.y_pos = -1;
-    selectedPiece.available_moves =  empty_array;
+    available_moves = [];
     
 }
 
 function getSelectedPiece(){
-    selectedPiece.pieceID = parseInt(event.target.id);
+    selectedPiece.pieceID = parseInt(temp_id);
     selectedPiece.x_pos = findx(selectedPiece.pieceID);
     selectedPiece.y_pos = findy(selectedPiece.pieceID);
     getAvailableSpaces();
@@ -108,7 +115,7 @@ function getAvailableSpaces(){
     while(x>=0 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             x--;
         }else{
             flag = false;
@@ -124,7 +131,7 @@ function getAvailableSpaces(){
     while(x<=9 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             x++;
         }else{
             flag = false;
@@ -140,7 +147,7 @@ function getAvailableSpaces(){
     while(y>=0 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             y--;
         }else{
             flag = false;
@@ -157,7 +164,7 @@ function getAvailableSpaces(){
     while(y<=9 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             y++;
         }else{
             flag = false;
@@ -174,7 +181,7 @@ function getAvailableSpaces(){
     while(x>=0 &&  y>=0 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             x--;
             y--;
         }else{
@@ -192,7 +199,7 @@ function getAvailableSpaces(){
     while(x<=9 && y<=9 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             x++;
             y++;
         }else{
@@ -209,7 +216,7 @@ function getAvailableSpaces(){
     while(x>=0 && y<=9 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             y++;
             x--;
         }else{
@@ -226,7 +233,7 @@ function getAvailableSpaces(){
     while(x<=9 && y>=0 && flag){
         temp_index = 10*y + x;
         if(board[temp_index]===null){
-            selectedPiece.available_moves.push(temp_index);
+            available_moves.push(temp_index);
             x++;
             y--;
         }else{
@@ -237,7 +244,7 @@ function getAvailableSpaces(){
 }
 
 function givePieceBorder(){
-    if(selectedPiece.available_moves.length !== 0){
+    if(available_moves.length !== 0){
         document.getElementById(selectedPiece.pieceID).style.border = "3px solid green";
         giveCellsClick();
     }else{
@@ -246,10 +253,9 @@ function givePieceBorder(){
 }
 
 function giveCellsClick(){
-    for(let i=0;i<selectedPiece.available_moves.length;i++){
-        cells[selectedPiece.available_moves[i]].setAttribute("onclick",`makeMove(${available_moves[i]})`);
+    for(let i=0;i<available_moves.length;i++){
+        cells[available_moves[i]].setAttribute("onclick",`makeMove(${available_moves[i]})`);
     }
-    
 }
 
 function makeMove(number){
