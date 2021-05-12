@@ -8,8 +8,9 @@ const board = [
     5,null,null,null,null,null,null,null,null,6,
     null,null,null,null,null,null,null,null,null,null,
     null,null,null,null,null,null,null,null,null,null,
-    null,null,null,7,null,null,8,null,null,null,
+    null,null,null,7,null,null,8,null,null,null
 ]
+
 
 // DOM references
 
@@ -23,7 +24,7 @@ const divider = document.querySelector("#divider")
 
 let turn = true;
 let playerPieces;
-var available_moves;
+let available_moves;
 available_moves = [];
 let temp_id;
 
@@ -31,6 +32,7 @@ let selectedPiece = {
     pieceID: -1,
     x_pos: -1,
     y_pos: -1,
+    
 }
 
 
@@ -38,20 +40,19 @@ let selectedPiece = {
 function givePiecesEventListeners(){
     if(turn){
         for(let i=0;i< whitePieces.length;i++){
-            whitePieces[i].addEventListener("click",function(){temp(whitePieces[i].id);});
+            whitePieces[i].addEventListener("click",getPlayerPieces);
         }
     }else{
         for(let i=0;i<blackPieces.length;i++){
-            blackPieces[i].addEventListener("click",function(){temp(blackPieces[i].id);});
+            blackPieces[i].addEventListener("click",getPlayerPieces);
         }
     }
 }
-function temp(id){
-    temp_id = id;
-    getPlayerPieces();
-}
-function getPlayerPieces(){
-    
+
+
+
+function getPlayerPieces(event){
+    temp_id = event.target.id;
     if(turn){
         playerPieces = whitePieces;
     }else{
@@ -71,6 +72,7 @@ function removeCellonClick(){
 function resetBorders(){
     for(let i =0;i<playerPieces.length;i++){
         playerPieces[i].style.border = "1px solid white";
+        
     }
     resetSelectedPieceProperties();
     getSelectedPiece();
@@ -79,7 +81,6 @@ function resetBorders(){
 function resetSelectedPieceProperties(){
     
     selectedPiece.pieceID = -1;
-    selectedPiece.pieceID = -1;
     selectedPiece.x_pos = -1;
     selectedPiece.y_pos = -1;
     available_moves = [];
@@ -87,6 +88,7 @@ function resetSelectedPieceProperties(){
 }
 
 function getSelectedPiece(){
+   
     selectedPiece.pieceID = parseInt(temp_id);
     selectedPiece.x_pos = findx(selectedPiece.pieceID);
     selectedPiece.y_pos = findy(selectedPiece.pieceID);
@@ -298,13 +300,21 @@ function changePlayer(){
             whiteTurnText[i].style.color = "lightGrey";
             blackTurnText[i].style.color = "black";
         }
+        removeborder(whitePieces);
     }else{
         turn = true;
         for(let i=0;i<blackTurnText.length;i++){
             blackTurnText[i].style.color = "lightGrey";
             whiteTurnText[i].style.color = "black";
         }
-        givePiecesEventListeners();
+        
+        removeborder(blackPieces);
+    }
+    givePiecesEventListeners();
+}
+function removeborder(pieces){
+    for(let i=0;i<pieces.length;i++){
+        pieces[i].style.border = "";
     }
 }
 
