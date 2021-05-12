@@ -284,7 +284,73 @@ function makeMoveForBlock(number){
     resetSelectedPieceProperties();
     removeCellonClick();
     secondmove = false;
-    changePlayer();
+    checkForWin();
+    
+}
+function checkForWin(){
+    let temp_flag;
+    let arr;
+    if(turn){
+        arr = [1,2,3,4]
+        temp_flag = checkifmovesavailable(arr);
+        if(temp_flag){
+            divider.style.display = "none";
+            for(let i=0;i<whiteTurnText.length;i++){
+                whiteTurnText[i].style.color = "black";
+                blackTurnText[i].style.display = "none";
+                whiteTurnText[i].textContent = "White WINS!!";
+                let btn = document.createElement("button");
+                btn.innerHTML = "Play Again";
+                btn.setAttribute("onclick","location.reload()");
+                whiteTurnText[i].appendChild(btn);
+            }
+        }
+    
+        
+    }else{
+        arr = [5,6,7,8];
+        temp_flag = checkifmovesavailable(arr);
+        if(temp_flag){
+            divider.style.display = "none";
+            for(let i=0;i<blackTurnText.length;i++){
+                blackTurnText[i].style.color = "black";
+                whiteTurnText[i].style.display = "none";
+                blackTurnText[i].textContent = "Black WINS!!"
+            }
+        }
+
+    }
+    if(!temp_flag){
+        changePlayer();
+    }
+    
+}
+function checkifmovesavailable(arr){
+    let x;
+    let y;
+    let temp_x;
+    let temp_y;
+    flag = true;
+    for(let i=0;i<arr.length;i++){
+        if(!flag){break;}
+        temp_x = findx(arr[i]);
+        temp_y = findy(arr[i]);
+        for(let j=0;j<3;j++){
+            if(!flag){break;}
+            x = temp_x - 1 + j;
+            for(let k=0;k<3;k++){
+                if(!flag){break;}
+                y = temp_y - 1 + k;
+                if(x>=0 && y>=0 && x<=9 && y<=9 && (x!=temp_x || y!=temp_y)){
+                    if(board[y*10 + x]===null){
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return flag;
 }
 
 function makeMove(number){
