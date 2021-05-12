@@ -6,6 +6,6 @@ White moves first, and the players alternate moves thereafter. Each move consist
 
 For more Information you can check out, https://en.wikipedia.org/wiki/Game_of_the_Amazons
 
-![ss](Capture.png)
+![ss](Capture.PNG)
 
-![ss2](Capture2.png)
+![ss2](Capture2.PNG)
