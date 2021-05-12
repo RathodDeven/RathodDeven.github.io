@@ -27,6 +27,7 @@ let playerPieces;
 let available_moves;
 available_moves = [];
 let temp_id;
+let secondmove = false;
 
 let selectedPiece = {
     pieceID: -1,
@@ -242,8 +243,14 @@ function getAvailableSpaces(){
             flag = false;
         }
     }  
+    if(secondmove){
+        giveCellsClickForBlock();
+    }else{
     givePieceBorder();  
+    }
 }
+
+
 
 function givePieceBorder(){
     if(available_moves.length !== 0){
@@ -254,10 +261,30 @@ function givePieceBorder(){
     }
 }
 
+function giveCellsClickForBlock(){
+    if(available_moves.length !== 0){
+        for(let i=0;i<available_moves.length;i++){
+            cells[available_moves[i]].setAttribute("onclick",`makeMoveForBlock(${available_moves[i]})`);
+        }
+    }
+    else{
+        return;
+    }
+}
+
 function giveCellsClick(){
     for(let i=0;i<available_moves.length;i++){
         cells[available_moves[i]].setAttribute("onclick",`makeMove(${available_moves[i]})`);
     }
+}
+
+function makeMoveForBlock(number){
+    cells[number].innerHTML = `<span class="circle"></span>`;
+    board[number] = -1;
+    resetSelectedPieceProperties();
+    removeCellonClick();
+    secondmove = false;
+    changePlayer();
 }
 
 function makeMove(number){
@@ -268,14 +295,27 @@ function makeMove(number){
         cells[number].innerHTML =  `<div class="white-piece" id="${selectedPiece.pieceID}">♕</div>`;
         board[number] = selectedPiece.pieceID;
         whitePieces = document.querySelectorAll(".white-piece");
+        
     }else{
         cells[number].innerHTML = `<div class="black-piece" id="${selectedPiece.pieceID}">♛</div>`;
         board[number] = selectedPiece.pieceID;
         blackPieces = document.querySelectorAll(".black-piece");
+        
     }
-    resetSelectedPieceProperties();
     removeCellonClick();
     removeEventListeners();
+    updateavailablemoves(number);
+    
+    
+}
+function updateavailablemoves(number){
+    secondmove = true;
+    temp_id = selectedPiece.pieceID;
+    resetSelectedPieceProperties();
+    getSelectedPiece();
+    
+    
+
 }
 
 function removeEventListeners(){
@@ -288,8 +328,6 @@ function removeEventListeners(){
             blackPieces[i].removeEventListener("click",getPlayerPieces);
         }
     }
-    //need to change from here
-    changePlayer();
 }
 
 function changePlayer(){

@@ -8,15 +8,9 @@ td{
     height: 55px;
     text-align: center;
 }
-td{
-    
+.circle:before {
+    content: ' \25CF';
     font-size: 40px;
-    display: table-cell;
-    vertical-align: middle;
-    background-color: #ba7a37;
-    width: 55px;
-    height: 55px;
-    text-align: center;
 }
 
 main {
@@ -53,7 +47,7 @@ main {
 }
 
 #divider{
-    font-size: 90px;
+    font-size: 55px;
     margin-left: 15px;
     margin-right: 15px;
 }
