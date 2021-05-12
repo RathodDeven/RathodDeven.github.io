@@ -316,6 +316,10 @@ function checkForWin(){
                 blackTurnText[i].style.color = "black";
                 whiteTurnText[i].style.display = "none";
                 blackTurnText[i].textContent = "Black WINS!!"
+                let btn = document.createElement("button");
+                btn.innerHTML = "Play Again";
+                btn.setAttribute("onclick","location.reload()");
+                blackTurnText[i].appendChild(btn);
             }
         }
 
