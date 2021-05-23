@@ -129,13 +129,7 @@ div {
         display: none;
     }
 
-    .white-turn-text {
-        -webkit-transform:rotate(-180deg);
-        -moz-transform:rotate(-180deg);
-        -o-transform:rotate(-180deg);
-        transform:rotate(-180deg);
-        filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2);    
-    }
+    
 }
 
 @media screen and (max-width: 380px) {
