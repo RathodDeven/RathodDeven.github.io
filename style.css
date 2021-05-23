@@ -109,7 +109,7 @@ div {
         height: 12vw;
     }
 
-    .red-turn-text {
+    .white-turn-text {
         font-size: 40px;
     }
     
@@ -129,7 +129,7 @@ div {
         display: none;
     }
 
-    .red-turn-text {
+    .white-turn-text {
         -webkit-transform:rotate(-180deg);
         -moz-transform:rotate(-180deg);
         -o-transform:rotate(-180deg);
