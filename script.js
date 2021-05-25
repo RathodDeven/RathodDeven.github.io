@@ -1,3 +1,8 @@
+
+
+
+
+
 const board = [
     null,null,null,1,null,null,2,null,null,null,
     null,null,null,null,null,null,null,null,null,null,
@@ -67,12 +72,13 @@ function getPlayerPieces(event){
 function removeCellonClick(){
     for(let i=0;i<cells.length;i++){
         cells[i].removeAttribute("onclick");
+        cells[i].style.cursor = 'default';
     }
 }
 
 function resetBorders(){
     for(let i =0;i<playerPieces.length;i++){
-        playerPieces[i].style.border = "1px solid white";
+        playerPieces[i].style.border = "3px solid white";
         
     }
     resetSelectedPieceProperties();
@@ -89,7 +95,7 @@ function resetSelectedPieceProperties(){
 }
 
 function getSelectedPiece(){
-   
+    
     selectedPiece.pieceID = parseInt(temp_id);
     selectedPiece.x_pos = findx(selectedPiece.pieceID);
     selectedPiece.y_pos = findy(selectedPiece.pieceID);
@@ -265,6 +271,7 @@ function giveCellsClickForBlock(){
     if(available_moves.length !== 0){
         for(let i=0;i<available_moves.length;i++){
             cells[available_moves[i]].setAttribute("onclick",`makeMoveForBlock(${available_moves[i]})`);
+            cells[available_moves[i]].style.cursor = 'pointer';
         }
     }
     else{
@@ -275,6 +282,7 @@ function giveCellsClickForBlock(){
 function giveCellsClick(){
     for(let i=0;i<available_moves.length;i++){
         cells[available_moves[i]].setAttribute("onclick",`makeMove(${available_moves[i]})`);
+        cells[available_moves[i]].style.cursor = 'pointer';
     }
 }
 
@@ -334,7 +342,7 @@ function checkifmovesavailable(arr){
     let y;
     let temp_x;
     let temp_y;
-    flag = true;
+    let flag = true;
     for(let i=0;i<arr.length;i++){
         if(!flag){break;}
         temp_x = findx(arr[i]);
@@ -358,6 +366,7 @@ function checkifmovesavailable(arr){
 }
 
 function makeMove(number){
+    
     document.getElementById(selectedPiece.pieceID).remove();
     cells[selectedPiece.y_pos*10 + selectedPiece.x_pos].innerHTML = "";
     board[selectedPiece.y_pos*10 + selectedPiece.x_pos] = null;
@@ -383,8 +392,6 @@ function updateavailablemoves(number){
     temp_id = selectedPiece.pieceID;
     resetSelectedPieceProperties();
     getSelectedPiece();
-    
-    
 
 }
 

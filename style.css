@@ -1,3 +1,15 @@
+
+
+
+
+
+
+
+
+
+
+
+
 td{
                 
     font-size: 40px;
@@ -71,10 +83,13 @@ div {
 
 .black-piece{
     display: inline;
+    cursor: pointer;
 }
 
 .white-piece{
     display: inline;
+    cursor: pointer;
+    
 }
 
 
@@ -109,7 +124,7 @@ div {
         height: 12vw;
     }
 
-    .white-turn-text {
+    .red-turn-text {
         font-size: 40px;
     }
     
@@ -129,7 +144,7 @@ div {
         display: none;
     }
 
-    .white-turn-text {
+    .red-turn-text {
         -webkit-transform:rotate(-180deg);
         -moz-transform:rotate(-180deg);
         -o-transform:rotate(-180deg);
