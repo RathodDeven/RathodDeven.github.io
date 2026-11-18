@@ -91,7 +91,7 @@ body.baropen{overflow:hidden}
 <div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
 <div class="bhint" id="bMicHint"></div>
 <div class="bfoot" id="bFoot"></div>
-<div class="bfoot" style="opacity:.6">App version 5</div>
+<div class="bfoot" style="opacity:.6">App version 6</div>
 </div></div>
 <script>
 const EX={
@@ -304,11 +304,65 @@ function webSpeech(){
   unhold(){if(!held)return;held=false;if(!rec)schedule(150)},
   onPartial(f){cb.p=f},onFinal(f){cb.f=f},onState(f){cb.s=f}};
 }
-const cu=n=>Promise.resolve(n==='dictation'?webSpeech():null);
+function loadScript(src){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=src;e.onload=res;e.onerror=rej;document.head.appendChild(e)})}
+async function modelBlobURL(onProgress){
+ const name='model.tar.gz';let c=null;try{c=await caches.open('workout-model-v1')}catch(e){}
+ let r=c&&await c.match(name);
+ if(!r){const res=await fetch(name);if(!res.ok)throw new Error('download '+res.status);
+  const total=+res.headers.get('content-length')||41184862,rd=res.body.getReader(),parts=[];let got=0;
+  for(;;){const{done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;onProgress(Math.min(99,Math.round(got/total*100)))}
+  const blob=new Blob(parts,{type:'application/gzip'});if(c){try{await c.put(name,new Response(blob))}catch(e){}}
+  return URL.createObjectURL(blob)}
+ return URL.createObjectURL(await r.blob());
+}
+const GRAMMAR=['pause','pose','stop','wait','go','resume','continue','start','next','skip','done','back','go back','previous','restart','again','next exercise','close','[unk]'];
+function voskEngine(){
+ if(!window.WebAssembly||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.AudioContext)return null;
+ let model=null,loading=null,rec=null,ctx=null,stream=null,node=null,src=null,wantOn=false,held=false,cb={p:()=>{},f:()=>{},s:()=>{}};
+ async function load(){
+  if(model)return model;
+  if(!loading)loading=(async()=>{
+   cb.s({state:'loading',pct:0});
+   if(!window.Vosk)await loadScript('vosk.js');
+   const url=await modelBlobURL(p=>cb.s({state:'loading',pct:p}));
+   cb.s({state:'loading',pct:100});
+   model=await Vosk.createModel(url);return model})().catch(e=>{loading=null;throw e});
+  return loading;
+ }
+ function teardown(){try{node&&node.disconnect()}catch(e){}try{src&&src.disconnect()}catch(e){}
+  try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}try{ctx&&ctx.close()}catch(e){}try{rec&&rec.remove()}catch(e){}
+  node=src=stream=ctx=rec=null}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{})});
+ return{
+  finalOnly:true,
+  async start(){
+   wantOn=true;held=false;if(stream)return;
+   let s;try{s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}})}
+   catch(e){wantOn=false;cb.s({state:'idle',reason:(e&&e.name==='NotAllowedError')?'not_granted':'mic_error'});throw{code:(e&&e.name==='NotAllowedError')?'not_granted':'error'}}
+   try{await load()}catch(e){s.getTracks().forEach(t=>t.stop());wantOn=false;cb.s({state:'idle',reason:'load_error'});throw{code:'load_error'}}
+   if(!wantOn){s.getTracks().forEach(t=>t.stop());return}
+   stream=s;ctx=new AudioContext();src=ctx.createMediaStreamSource(stream);node=ctx.createScriptProcessor(4096,1,1);
+   rec=new model.KaldiRecognizer(ctx.sampleRate,JSON.stringify(GRAMMAR));
+   rec.on('result',m=>{const t=(m.result&&m.result.text||'').replace(/\[unk\]/g,'').trim();if(t&&!held)cb.f({text:t})});
+   rec.on('partialresult',m=>{const t=(m.result&&m.result.partial||'').replace(/\[unk\]/g,'').trim();if(t&&!held)cb.p({text:t})});
+   node.onaudioprocess=e=>{if(held||!rec)return;try{rec.acceptWaveform(e.inputBuffer)}catch(err){}};
+   src.connect(node);node.connect(ctx.destination);
+   if(ctx.state==='suspended')ctx.resume().catch(()=>{});
+   cb.s({state:'listening'});
+  },
+  stop(){wantOn=false;held=false;teardown();cb.s({state:'idle',reason:'stopped'});return Promise.resolve()},
+  hold(){held=true},unhold(){held=false},
+  onPartial(f){cb.p=f},onFinal(f){cb.f=f},onState(f){cb.s=f}};
+}
+const cu=n=>Promise.resolve(n==='dictation'?(voskEngine()||webSpeech()):null);
 let TTS=null,DICT=null,dictChecked=false,listening=false,coach=store('coach')!=='0',ignoreUntil=0,heard='',micNote='',lastCmdAt=0,lastCmdText='',wantMic=false,retries=0;
 cu('tts').then(t=>{TTS=t});
 cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
- d.onState(({state,reason})=>{listening=state==='listening';
+ d.onState(({state,reason,pct})=>{
+  if(state==='loading'){listening=false;micNote=pct>=100?'Starting voice engine…':`Downloading voice engine… ${pct||0}% (first time only)`;paintVoice();return}
+  if(reason==='load_error'){wantMic=false;micNote='Couldn’t load the voice engine. Check your internet and tap 🎙 again.';listening=false;paintVoice();return}
+  if(reason==='mic_error'){wantMic=false;micNote='Couldn’t open the microphone. Tap 🎙 to try again.';listening=false;paintVoice();return}
+  listening=state==='listening';
   if(listening){retries=0;micNote=''}
   else if(reason==='not_granted'){wantMic=false;micNote='Microphone is blocked. Tap the icon left of the address bar, allow Microphone, then reload.'}
   else if(reason==='held'){micNote='';paintVoice();return}
@@ -321,7 +375,7 @@ cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
   const c=detect(text);if(!c)return;
   if(c===lastCmdText&&Date.now()-lastCmdAt<1500)return;
   lastCmdText=c;lastCmdAt=Date.now();run(c)};
- d.onPartial(({text})=>hear(text,false));
+ d.onPartial(({text})=>{if(d.finalOnly){heard=text;paintVoice()}else hear(text,false)});
  d.onFinal(({text})=>{hear(text,true);lastCmdText=''});
  paintVoice()});
 let speakSeq=0,coachTalking=false;
@@ -468,6 +522,7 @@ $('bMic').onclick=()=>{
  let p;try{p=DICT.start()}catch(e){p=Promise.reject(e)}
  $('bMicHint').textContent='Allow microphone access if asked…';
  Promise.resolve(p).catch(e=>{const c=(e&&(e.code||e.message))||'error';
+  if(c==='load_error'||(c==='error'&&micNote)){listening=false;paintVoice();return}
   micNote=c==='not_granted'?'Microphone was blocked. Allow it for claude.ai in Chrome’s site settings (lock icon in the address bar), then reload.':c==='dismissed'?'Permission prompt was closed. Tap again to allow the mic.':`Couldn’t start the mic (${c}).`;
   listening=false;paintVoice()})};
 paintCoach();paintVoice();
