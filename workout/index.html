@@ -76,6 +76,7 @@ body.baropen{overflow:hidden}
 <div class="days" id="days"></div>
 <div class="tip">Tap ▶ Start on any exercise: it times your holds and rests, and ticks it done when you finish. Move slowly: 2 seconds down, 1 second up.</div>
 <div class="tip" style="background:var(--warm-bg)">Fat loss is mostly food: protein at every meal (paneer, dal, curd, soy, tofu), no sugar or fried snacks, 3 litres of water, 7–8 hours of sleep. Sharp joint pain means stop; normal muscle soreness is fine.</div>
+<div class="tip">Desk days: every hour, stand up for 1 minute and do 5 chin tucks. Raise your screen so the top is at eye level.</div>
 <div id="plan"></div>
 </div>
 <div id="bar" role="dialog" aria-label="Exercise timer"><div class="in">
@@ -91,7 +92,7 @@ body.baropen{overflow:hidden}
 <div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
 <div class="bhint" id="bMicHint"></div>
 <div class="bfoot" id="bFoot"></div>
-<div class="bfoot" style="opacity:.6">App version 7</div>
+<div class="bfoot" style="opacity:.6">App version 8</div>
 </div></div>
 <script>
 const EX={
@@ -137,7 +138,7 @@ hamstring:{name:'Hamstring stretch',how:'Sit with legs straight in front. Reach 
  A:{h:[122,82],s:[112,90],eA:[130,102],hA:[148,110],p:[72,116],kA:[110,116],fA:[150,116]}},
 quad:{name:'Quad stretch',how:'Stand on one leg, hold the other foot behind you, pull your heel toward your bum. Hold a wall for balance. Switch legs.',
  A:{h:[100,20],s:[100,33],eA:[86,44],hA:[72,40],eB:[110,52],hB:[118,70],p:[100,70],kA:[100,94],fA:[100,118],kB:[102,96],fB:[120,72]}},
-chest:{name:'Door chest stretch',how:'Put your forearm flat on a door frame, elbow at shoulder height. Step forward gently until your chest stretches. Switch arms.',
+chest:{name:'Wall chest stretch',how:'Stand side-on to a wall, forearm flat on it with the elbow at shoulder height. Turn your body away until your chest stretches. Switch arms.',
  prop:'<line x1="70" y1="4" x2="70" y2="118" stroke="var(--prop)" stroke-width="3"/>',
  A:{h:[106,22],s:[102,34],eA:[104,52],hA:[106,68],eB:[74,34],hB:[74,12],p:[104,72],kA:[118,95],fA:[124,118],kB:[100,95],fB:[98,118]}},
 child:{name:"Child's pose",how:'Kneel, sit back on your heels, reach your arms forward on the floor and rest your forehead down. Breathe slowly.',
@@ -183,6 +184,24 @@ EX.supermanpull={name:'Superman pull',how:'Lie face down, arms stretched forward
 EX.towelcurl={name:'Towel curl hold',how:'Stand on the middle of a towel, hold both ends, elbows at your sides. Curl up as hard as you can against the towel and hold. Works the biceps.',
  prop:'<line x1="80" y1="56" x2="96" y2="117" stroke="var(--warm)" stroke-width="3" stroke-dasharray="5 4"/>',
  A:{h:[100,20],s:[100,33],eA:[100,54],hA:[80,54],p:[100,70],kA:[100,94],fA:[100,118]}};
+EX.rope={name:'Skipping rope',how:'Elbows close to your sides, turn the rope with your wrists. Jump only an inch, land softly on the balls of your feet. Burns a lot of calories fast.',per:.55,
+ prop:'<ellipse cx="100" cy="66" rx="36" ry="58" fill="none" stroke="var(--warm)" stroke-width="2" stroke-dasharray="4 4"/>',
+ A:{h:[100,22],s:[100,35],eA:[90,52],hA:[80,62],eB:[110,52],hB:[120,62],p:[100,72],kA:[96,95],fA:[95,117],kB:[104,95],fB:[105,117]},
+ B:{h:[100,16],s:[100,29],eA:[90,46],hA:[80,58],eB:[110,46],hB:[120,58],p:[100,66],kA:[96,88],fA:[96,108],kB:[104,88],fB:[104,108]}};
+EX.chintuck={name:'Chin tucks',how:'Sit or stand tall. Pull your chin straight back (make a double chin), not down. Hold 5 seconds, relax. Undoes the forward-head desk posture.',per:3,
+ A:{h:[94,20],s:[100,34],eA:[100,52],hA:[100,68],p:[100,70],kA:[100,94],fA:[100,118]},
+ B:{h:[103,21],s:[100,34],eA:[100,52],hA:[100,68],p:[100,70],kA:[100,94],fA:[100,118]}};
+EX.wallangel={name:'Wall angels',how:'Stand with your back, head and bum against a wall, arms in a goalpost shape touching the wall. Slide your arms up and down slowly, keeping them on the wall.',per:3.2,
+ A:{h:[100,30],s:[100,43],eA:[80,43],hA:[80,24],eB:[120,43],hB:[120,24],p:[100,80],kA:[95,99],fA:[94,118],kB:[105,99],fB:[106,118]},
+ B:{h:[100,30],s:[100,43],eA:[86,26],hA:[92,8],eB:[114,26],hB:[108,8],p:[100,80],kA:[95,99],fA:[94,118],kB:[105,99],fB:[106,118]}};
+EX.ytw={name:'Y-T-W raises',how:'Lie face down, forehead on a towel. Lift your arms in a Y, then a T, then a W (elbows pulled back), squeezing your shoulder blades each time. That is 1 rep.',per:2.6,
+ A:{h:[40,108],s:[56,113],eA:[38,114],hA:[18,114],p:[110,116],kA:[140,116],fA:[170,116]},
+ B:{h:[40,108],s:[56,113],eA:[40,104],hA:[22,96],p:[110,116],kA:[140,116],fA:[170,116]}};
+EX.thread={name:'Thread the needle',how:'On hands and knees. Reach one arm up to the ceiling, then thread it under your body, letting your shoulder drop. Loosens a stiff upper back.',per:3.2,
+ A:{h:[64,82],s:[76,86],eA:[76,101],hA:[76,116],eB:[80,66],hB:[84,46],p:[126,86],kA:[126,116],fA:[160,116]},
+ B:{h:[68,96],s:[78,96],eA:[76,106],hA:[76,116],eB:[92,106],hB:[108,114],p:[126,86],kA:[126,116],fA:[160,116]}};
+EX.neck={name:'Neck side stretch',how:'Sit tall, drop one shoulder. Gently pull your head toward the other shoulder with your hand. Hold, breathe, switch sides. No yanking.',
+ A:{h:[90,24],s:[100,36],eA:[84,30],hA:[86,12],eB:[110,52],hB:[114,68],p:[100,72],kA:[96,95],fA:[95,118],kB:[104,95],fB:[105,118]}};
 EX.buttkick={name:'Butt kicks',how:'Jog in place, kicking each heel back up toward your bum. Swing your arms. Stay light on the balls of your feet.',per:.7,
  A:{h:[100,20],s:[100,33],eA:[90,48],hA:[86,62],eB:[110,50],hB:[116,62],p:[100,70],kA:[102,95],fA:[124,76],kB:[100,94],fB:[100,118]},
  B:{h:[100,20],s:[100,33],eA:[110,50],hA:[116,62],eB:[90,48],hB:[86,62],p:[100,70],kA:[100,94],fA:[100,118],kB:[102,95],fB:[124,76]}};
@@ -201,26 +220,36 @@ const P={
  legs:[
   [['squat','4 sets × 20 reps'],['lunge2','3 sets × 10 each leg'],['bridge','3 sets × 20 reps'],['backwidow','3 sets × 10 reps'],['supermanpull','3 sets × 10 reps'],['towelcurl','3 holds × 20 sec']],
   [['squat','4 sets × 25 reps'],['lunge2','3 sets × 12 each leg'],['bridge','3 sets × 25 reps'],['backwidow','3 sets × 12 reps'],['supermanpull','3 sets × 12 reps'],['towelcurl','3 holds × 25 sec']],
-  [['squat','4 sets × 30 reps'],['lunge2','4 sets × 12 each leg'],['sbridge','3 sets × 10 each leg'],['backwidow','4 sets × 12 reps'],['supermanpull','4 sets × 12 reps'],['towelcurl','3 holds × 30 sec']],
-  [['squat','5 sets × 30 reps'],['lunge2','4 sets × 15 each leg'],['sbridge','3 sets × 12 each leg'],['backwidow','4 sets × 15 reps'],['supermanpull','4 sets × 15 reps'],['towelcurl','4 holds × 30 sec']]],
+  [['squat','4 sets × 30 reps'],['lunge2','3 sets × 12 each leg'],['sbridge','3 sets × 10 each leg'],['backwidow','3 sets × 12 reps'],['supermanpull','3 sets × 12 reps'],['towelcurl','3 holds × 30 sec']],
+  [['squat','4 sets × 30 reps'],['lunge2','3 sets × 15 each leg'],['sbridge','3 sets × 12 each leg'],['backwidow','3 sets × 15 reps'],['supermanpull','3 sets × 15 reps'],['towelcurl','3 holds × 30 sec']]],
  skill:[
   [['wallplank','3 holds × 30 sec'],['hollow','3 holds × 15 sec']],
   [['wallplank','3 holds × 45 sec'],['hollow','3 holds × 20 sec']],
   [['wallhold','3 holds × 20 sec'],['hollow','3 holds × 25 sec']],
   [['wallhold','4 holds × 30 sec'],['hollow','3 holds × 30 sec']]]
 };
+const ROPE=['6 rounds × 30 sec','8 rounds × 30 sec','8 rounds × 40 sec','10 rounds × 45 sec'];
+function posture(w,easy){
+ const late=w>=3,L=[['chintuck',late?'3 sets × 10 reps':'2 sets × 10 reps',20],['wallangel',late?'3 sets × 10 reps':'2 sets × 10 reps',20],['ytw',late?'3 sets × 8 reps':'2 sets × 8 reps',30],['thread',late?'2 sets × 8 each side':'2 sets × 6 each side',15],['neck','30 sec each side']];
+ if(!easy)L.push(['chest','30 sec each arm'],['lunge','30 sec each side']);
+ return L;
+}
 function plan(w,d){
- const t=TYPE[d],S=[],late=w>=3;
- S.push({title:'1. Warm-up · 5 min',note:'Every day before you start.',items:warmup});
- if(t==='push'||t==='legs')S.push({title:'2. Strength · ~20 min',note:'Rest 60s between sets. If the last 2 reps of a set feel easy, add 3 reps next time.',items:P[t][w-1]});
- if(t==='skill')S.push({title:'2. Handstand + core · ~8 min',note:'Rest 60s between holds. Come down if your wrists hurt.',items:P.skill[w-1]});
- if(t==='easy'){
-  S.push({title:'2. Light cardio · 15 min',note:'Easy pace. You should be able to talk.',items:[['march','8 minutes'],['stepjack','7 minutes']]});
-  S.push({title:'3. Stretch · 10 min',note:'Hold each one, breathe slowly. Do both sides.',items:[['hamstring','30 sec × 2'],['quad','30 sec each leg'],['chest','30 sec each arm'],['child','1 minute'],['lunge','30 sec each side']]});
- } else {
-  const r=t==='skill'?(late?6:5):3,moves=late?['highknees','jacks','climber','boxing']:['jog','stepjack','buttkick','boxing'];
-  S.push({circuit:{rounds:r,moves},title:`3. Cardio circuit · ${r} rounds (${r*4} min)`,note:`Do each move 45 sec, rest 15 sec, go to the next. All 4 moves = 1 round. Repeat ${r} times. Rest 1 min between rounds if needed.`,items:moves.map(k=>[k,'45 sec'])});
+ const t=TYPE[d],S=[],late=w>=3;let n=1;
+ S.push({title:`${n++}. Warm-up · 5 min`,note:'Every day before you start.',items:warmup});
+ if(t==='push'||t==='legs')S.push({title:`${n++}. Strength · ~20 min`,note:'Rest 60s between sets. If the last 2 reps of a set feel easy, add 3 reps next time.',items:P[t][w-1]});
+ if(t==='skill'){
+  S.push({title:`${n++}. Handstand + core · ~8 min`,note:'Rest 60s between holds. Come down if your wrists hurt.',items:P.skill[w-1]});
+  S.push({title:`${n++}. Skipping rope · ~${w===1?6:w===4?10:8} min`,note:'Small, quick jumps on the balls of your feet, wrists turning the rope. Wear shoes on tile. Tripping is normal: just restart.',items:[['rope',ROPE[w-1]]]});
  }
+ if(t==='easy'){
+  S.push({title:`${n++}. Light cardio · 15 min`,note:'Easy pace. You should be able to talk.',items:[['march','8 minutes'],['stepjack','7 minutes']]});
+  S.push({title:`${n++}. Stretch · 10 min`,note:'Hold each one, breathe slowly. Do both sides.',items:[['hamstring','30 sec × 2'],['quad','30 sec each leg'],['chest','30 sec each arm'],['child','1 minute'],['lunge','30 sec each side']]});
+ } else {
+  const r=t==='skill'?(late?4:3):(t==='legs'&&late?2:3),moves=late?['rope','jacks','climber','boxing']:['rope','stepjack','buttkick','boxing'];
+  S.push({circuit:{rounds:r,moves},title:`${n++}. Cardio circuit · ${r} rounds (${r*4} min)`,note:`Do each move 45 sec, rest 15 sec, go to the next. All 4 moves = 1 round. Repeat ${r} times. Rest 1 min between rounds if needed.`,items:moves.map(k=>[k,'45 sec'])});
+ }
+ S.push({title:`${n++}. Posture reset · ~${t==='easy'?6:9} min`,note:'For desk neck and shoulders. Slow and controlled, every day.',items:posture(w,t==='easy')});
  return S;
 }
 
@@ -255,11 +284,14 @@ const curWeek=Math.min(4,Math.max(1,Math.round((monday(new Date())-new Date(plan
 let week=curWeek,day=DAYS[todayIdx],cards={};
 const fmt=s=>{s=Math.max(0,s);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
 
-function stepsFor(dose){
+function stepsFor(dose,restSec){const RS=restSec||60;
  let m,S=[];
- if(m=dose.match(/(\d+) sets × (\d+) (reps|each leg)/)){const n=+m[1],r=+m[2],each=m[3]==='each leg';
-  for(let i=1;i<=n;i++){S.push({k:'reps',phase:`Set ${i} of ${n}`,big:`Do ${r} reps${each?' each leg':''}`,say:`Set ${i} of ${n}. ${r} reps${each?' each leg':''}.`});
-   if(i<n)S.push({k:'rest',dur:60,phase:'Rest',big:`Coming up: set ${i+1} of ${n}`,say:'Rest, 60 seconds.'})}return S}
+ if(m=dose.match(/(\d+) sets × (\d+) (reps|each (?:leg|side|arm))/)){const n=+m[1],r=+m[2],each=m[3]==='reps'?'':' '+m[3];
+  for(let i=1;i<=n;i++){S.push({k:'reps',phase:`Set ${i} of ${n}`,big:`Do ${r} reps${each}`,say:`Set ${i} of ${n}. ${r} reps${each}.`});
+   if(i<n)S.push({k:'rest',dur:RS,phase:'Rest',big:`Coming up: set ${i+1} of ${n}`,say:`Rest, ${RS} seconds.`})}return S}
+ if(m=dose.match(/(\d+) rounds × (\d+) sec/)){const n=+m[1],d=+m[2],rest=Math.max(15,60-d);
+  S.push({k:'rest',dur:5,phase:'Get ready',big:'Rope behind your heels',say:'Get ready.'});
+  for(let i=1;i<=n;i++){S.push({k:'hold',dur:d,phase:`Round ${i} of ${n}`,big:'Skip!',say:`Round ${i}. Skip.`});if(i<n)S.push({k:'rest',dur:rest,phase:'Rest',big:`Coming up: round ${i+1} of ${n}`,say:`Rest, ${rest} seconds.`})}return S}
  if(m=dose.match(/(\d+) slow reps/))return[{k:'reps',phase:'1 set',big:`Do ${m[1]} slow reps`,say:`${m[1]} slow reps.`}];
  const ready={k:'rest',dur:5,phase:'Get ready',big:'Get into position',say:'Get into position.'};
  const holds=(n,d,rest)=>{S.push(ready);
@@ -550,10 +582,10 @@ function render(){
   if(s.circuit){const qi=queue.length;queue.push({name:'Cardio circuit',steps:circuitSteps(s.circuit.rounds,s.circuit.moves),ids});
    const b=document.createElement('button');b.className='go wide';b.textContent=`▶ Start circuit · ${s.circuit.rounds} rounds`;
    b.onclick=()=>startItem(qi,true);root.appendChild(b)}
-  s.items.forEach(([k,dose],ii)=>{
+  s.items.forEach(([k,dose,restSec],ii)=>{
    const id=ids[ii],c=document.createElement('div');c.className='card';
    c.appendChild(makeFig(k));
-   const r=document.createElement('div'),steps=s.circuit?null:stepsFor(dose);let qi=-1;
+   const r=document.createElement('div'),steps=s.circuit?null:stepsFor(dose,restSec);let qi=-1;
    if(steps){steps.forEach(x=>x.ex=x.ex||k);qi=queue.length;queue.push({name:EX[k].name,steps,ids:[id]})}
    r.innerHTML=`<div class="name">${EX[k].name}</div><div class="dose">${dose}</div><div class="how">${EX[k].how}</div><div class="actions">${steps?'<button class="go">▶ Start</button>':''}<label class="chk"><input type="checkbox"> Done</label></div>`;
    const cb=r.querySelector('input');cb.checked=store(id)==='1';c.classList.toggle('done',cb.checked);
