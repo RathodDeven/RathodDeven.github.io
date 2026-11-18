@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f6e56">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Home workout: 4-week plan</title>
+<style>
+:root{--bg:#f7f6f2;--card:#ffffff;--text:#1f1e1c;--muted:#6b6a65;--line:#e4e2da;--accent:#0f6e56;--accent-bg:#e1f5ee;--fig:#1d9e75;--prop:#888780;--warm:#993c1d;--warm-bg:#faece7}
+@media (prefers-color-scheme:dark){:root{--bg:#1a1a18;--card:#262624;--text:#eeede8;--muted:#a3a29c;--line:#3a3a37;--accent:#5dcaa5;--accent-bg:#0b3a2f;--fig:#5dcaa5;--prop:#888780;--warm:#f0997b;--warm-bg:#3d2015}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 48px}
+h1{font-size:20px;font-weight:600;margin:4px 0 12px}
+.seg{display:flex;gap:8px;margin-bottom:10px}
+.seg button,.days button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:10px 0;font-size:15px;font-weight:500;cursor:pointer}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.days button{padding:8px 0;font-size:13px}
+.seg button{font-size:14px;padding:9px 0}
+.seg button.on,.days button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.days button.today:not(.on){border-color:var(--accent);color:var(--accent)}
+.tip{background:var(--accent-bg);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:14px}
+.sec{font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:22px 0 4px}
+.secnote{font-size:14px;color:var(--muted);margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;display:grid;grid-template-columns:132px 1fr;gap:12px;align-items:center}
+.card.done{opacity:.5}
+.card svg{width:132px;height:84px;display:block}
+.name{font-weight:600;font-size:16px}
+.dose{display:inline-block;background:var(--warm-bg);color:var(--warm);font-weight:600;font-size:14px;border-radius:6px;padding:2px 8px;margin:4px 0}
+.how{font-size:14px;color:var(--muted);line-height:1.45}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-top:6px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.actions{display:flex;align-items:center;gap:14px;margin-top:8px}
+.actions .chk{margin-top:0}
+.go{border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:999px;padding:5px 14px;font-size:13px;font-weight:600;cursor:pointer}
+.go.wide{display:block;width:100%;padding:11px;border-radius:12px;font-size:15px;margin:0 0 10px;background:var(--accent);color:#fff}
+.card.live{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.clock{display:inline-block;font-size:13px;font-weight:500;color:var(--accent);background:var(--accent-bg);border-radius:999px;padding:2px 10px;margin-left:4px;vertical-align:middle;font-variant-numeric:tabular-nums}
+#bar{position:fixed;inset:0;z-index:10;background:var(--bg);transform:translateY(102%);transition:transform .3s ease;overflow-y:auto}
+#bar.open{transform:none}
+#bar .in{max-width:560px;min-height:100%;margin:0 auto;padding:calc(12px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.bt{display:flex;justify-content:space-between;align-items:center}
+.bname{font-weight:600;font-size:20px}
+.bx{background:var(--card);border:1px solid var(--line);color:var(--muted);width:38px;height:38px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer}
+.bfig{flex:1;min-height:150px;max-height:34vh;background:var(--card);border:1px solid var(--line);border-radius:18px;margin:12px 0 8px;display:flex;align-items:center;justify-content:center;padding:8px}
+.bfig svg{width:100%;height:100%;max-height:30vh}
+.bhow{font-size:14px;color:var(--muted);line-height:1.45;margin-bottom:6px}
+.bphase{font-size:15px;color:var(--muted);text-align:center;margin-top:4px;font-weight:500}
+.bphase.rest{color:var(--warm)}
+.btime{font-size:76px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-2px;line-height:1.05}
+.btime.paused{opacity:.4}
+.bbig{text-align:center;font-weight:600;font-size:18px;color:var(--accent);min-height:26px}
+.prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0}
+.prog div{height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.bbtns{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.bbtns button{border-radius:14px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.bbtns button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.bup{font-size:13px;color:var(--muted);text-align:center;margin-top:10px;min-height:18px}
+.bvoice{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer}
+.chip.off{opacity:.55}
+.chip.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.bhint{font-size:12px;color:var(--muted);text-align:center;margin-top:6px;min-height:16px}
+.bfoot{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+body.baropen{overflow:hidden}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Home workout: 4-week plan</h1>
+<div class="seg" id="weeks"></div>
+<div class="days" id="days"></div>
+<div class="tip">Tap ▶ Start on any exercise: it times your holds and rests, and ticks it done when you finish. Move slowly: 2 seconds down, 1 second up.</div>
+<div class="tip" style="background:var(--warm-bg)">Fat loss is mostly food: protein at every meal (paneer, dal, curd, soy, tofu), no sugar or fried snacks, 3 litres of water, 7–8 hours of sleep. Sharp joint pain means stop; normal muscle soreness is fine.</div>
+<div id="plan"></div>
+</div>
+<div id="bar" role="dialog" aria-label="Exercise timer"><div class="in">
+<div class="bt"><div class="bname" id="bName"></div><button class="bx" id="bClose" aria-label="Close timer">×</button></div>
+<div class="bfig" id="bFig"></div>
+<div class="bhow" id="bHow"></div>
+<div class="bphase" id="bPhase"></div>
+<div class="btime" id="bTime">0:00</div>
+<div class="bbig" id="bBig"></div>
+<div class="prog"><div id="bProg"></div></div>
+<div class="bbtns"><button id="bPause">Pause</button><button class="pri" id="bNext">Skip</button></div>
+<div class="bup" id="bUp"></div>
+<div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
+<div class="bhint" id="bMicHint"></div>
+<div class="bfoot" id="bFoot"></div>
+</div></div>
+<script>
+const EX={
+armcircles:{name:'Arm circles + wrist rolls',how:'Arms out to the sides, draw small circles forward, then backward. Then roll your wrists in circles for 30 seconds.',per:1.6,
+ A:{h:[100,20],s:[100,34],eA:[80,28],hA:[62,22],eB:[120,28],hB:[138,22],p:[100,72],kA:[94,95],fA:[92,118],kB:[106,95],fB:[108,118]},
+ B:{h:[100,20],s:[100,34],eA:[80,40],hA:[62,46],eB:[120,40],hB:[138,46],p:[100,72],kA:[94,95],fA:[92,118],kB:[106,95],fB:[108,118]}},
+march:{name:'March in place',how:'Lift one knee to hip height, then the other. Swing your arms. Stay light on your feet.',per:1.1,
+ A:{h:[100,20],s:[100,33],eA:[90,48],hA:[86,62],eB:[110,50],hB:[116,62],p:[100,70],kA:[82,74],fA:[88,96],kB:[100,94],fB:[100,118]},
+ B:{h:[100,20],s:[100,33],eA:[110,50],hA:[116,62],eB:[90,48],hB:[86,62],p:[100,70],kA:[100,94],fA:[100,118],kB:[82,74],fB:[88,96]}},
+jog:{name:'Jog in place',how:'Like marching, but faster and on the balls of your feet. Pump your arms. Slow to a march if your knees hurt.',per:.6},
+squat:{name:'Squat',how:'Feet shoulder-width. Push hips back and down like sitting on a chair, chest up, heels on the floor. Stand back up.',per:2.6,
+ A:{h:[98,20],s:[100,33],eA:[96,50],hA:[92,66],p:[100,70],kA:[98,94],fA:[100,118]},
+ B:{h:[96,42],s:[102,54],eA:[84,58],hA:[64,58],p:[124,86],kA:[92,92],fA:[100,118]}},
+pushup:{name:'Push-up',how:'Hands under shoulders, body in one straight line. Lower your chest close to the floor, push back up. Too hard? Do the same on your knees.',per:2.6,
+ A:{h:[52,63],s:[62,68],eA:[62,92],hA:[62,116],p:[115,90],kA:[142,101],fA:[170,112]},
+ B:{h:[51,94],s:[62,98],eA:[80,106],hA:[62,116],p:[115,106],kA:[142,110],fA:[170,114]}},
+plank:{name:'Plank',how:'Forearms on the floor, elbows under shoulders, up on your toes. Body straight from head to heels. Squeeze your bum and stomach. Hold.',
+ A:{h:[50,90],s:[62,94],eA:[62,116],hA:[38,116],p:[115,104],kA:[142,109],fA:[170,114]}},
+superman:{name:'Superman hold',how:'Lie face down, arms stretched forward. Lift arms, chest and legs a few inches off the floor. Look at the floor. Hold.',per:3,
+ A:{h:[40,107],s:[56,113],eA:[36,115],hA:[16,115],p:[110,116],kA:[140,116],fA:[170,116]},
+ B:{h:[46,92],s:[58,104],eA:[38,100],hA:[18,95],p:[110,114],kA:[140,110],fA:[170,102]}},
+bridge:{name:'Glute bridge',how:'Lie on your back, knees bent, feet flat. Push through your heels and lift your hips until your body is straight from knees to shoulders. Squeeze, lower slowly.',per:2.4,
+ A:{h:[28,110],s:[44,114],eA:[70,116],hA:[94,116],p:[100,114],kA:[126,90],fA:[146,116]},
+ B:{h:[28,110],s:[44,114],eA:[70,116],hA:[94,116],p:[100,94],kA:[130,84],fA:[146,116]}},
+row:{name:'Table row',how:'Use a strong dining table. Lie on your back under its edge, grip it with both hands, heels on the floor, body straight. Pull your chest up to the table, lower slowly. Bend your knees to make it easier.',per:2.6,
+ prop:'<rect x="20" y="40" width="100" height="6" rx="2" fill="none" stroke="var(--prop)" stroke-width="2"/><line x1="30" y1="46" x2="30" y2="118" stroke="var(--prop)" stroke-width="2"/><line x1="86" y1="46" x2="86" y2="118" stroke="var(--prop)" stroke-width="2"/>',
+ A:{h:[104,79],s:[116,84],eA:[116,65],hA:[116,46],p:[154,100],kA:[172,108],fA:[190,116]},
+ B:{h:[105,59],s:[116,66],eA:[134,58],hA:[116,46],p:[154,91],kA:[172,103],fA:[190,116]}},
+wallplank:{name:'Wall plank',how:'Get in push-up position with your feet against a wall. Walk your feet up the wall to knee height. Arms straight, body tight. Hold. This is your first handstand step.',
+ prop:'<line x1="186" y1="10" x2="186" y2="118" stroke="var(--prop)" stroke-width="3"/>',
+ A:{h:[48,88],s:[60,92],eA:[60,104],hA:[60,116],p:[120,86],kA:[150,83],fA:[182,80]}},
+stepjack:{name:'Step jacks',how:'A jumping jack without the jump. Step one foot out to the side as both arms go up, step back in as they come down. Switch sides each time.',per:1.4,
+ A:{h:[100,20],s:[100,34],eA:[90,52],hA:[86,68],eB:[110,52],hB:[114,68],p:[100,72],kA:[95,95],fA:[94,118],kB:[105,95],fB:[106,118]},
+ B:{h:[100,20],s:[100,34],eA:[86,24],hA:[78,8],eB:[114,24],hB:[122,8],p:[100,72],kA:[95,95],fA:[94,118],kB:[114,95],fB:[126,118]}},
+stepup:{name:'Step-ups',how:'Use the bottom stair or a sturdy low step. Step up with one foot, bring the other up, step down. Switch the leading foot each round.',per:2.2,
+ prop:'<rect x="105" y="104" width="60" height="14" fill="none" stroke="var(--prop)" stroke-width="2"/>',
+ A:{h:[80,20],s:[80,33],eA:[80,50],hA:[80,66],p:[80,70],kA:[80,94],fA:[80,118],kB:[82,94],fB:[82,118]},
+ B:{h:[132,10],s:[132,22],eA:[132,38],hA:[132,54],p:[132,58],kA:[132,81],fA:[132,104],kB:[134,81],fB:[134,104]}},
+boxing:{name:'Shadow boxing',how:'One foot forward, fists up by your chin. Punch straight out fast, left then right, and pull back to your chin. Keep bouncing lightly.',per:.9,
+ A:{h:[104,24],s:[100,36],eA:[110,50],hA:[118,36],eB:[106,52],hB:[114,42],p:[98,72],kA:[90,95],fA:[84,118],kB:[110,95],fB:[116,118]},
+ B:{h:[104,24],s:[100,36],eA:[128,38],hA:[150,34],eB:[106,52],hB:[114,42],p:[98,72],kA:[90,95],fA:[84,118],kB:[110,95],fB:[116,118]}},
+hamstring:{name:'Hamstring stretch',how:'Sit with legs straight in front. Reach for your toes until you feel a stretch behind your legs. No bouncing.',
+ A:{h:[122,82],s:[112,90],eA:[130,102],hA:[148,110],p:[72,116],kA:[110,116],fA:[150,116]}},
+quad:{name:'Quad stretch',how:'Stand on one leg, hold the other foot behind you, pull your heel toward your bum. Hold a wall for balance. Switch legs.',
+ A:{h:[100,20],s:[100,33],eA:[86,44],hA:[72,40],eB:[110,52],hB:[118,70],p:[100,70],kA:[100,94],fA:[100,118],kB:[102,96],fB:[120,72]}},
+chest:{name:'Door chest stretch',how:'Put your forearm flat on a door frame, elbow at shoulder height. Step forward gently until your chest stretches. Switch arms.',
+ prop:'<line x1="70" y1="4" x2="70" y2="118" stroke="var(--prop)" stroke-width="3"/>',
+ A:{h:[106,22],s:[102,34],eA:[104,52],hA:[106,68],eB:[74,34],hB:[74,12],p:[104,72],kA:[118,95],fA:[124,118],kB:[100,95],fB:[98,118]}},
+child:{name:"Child's pose",how:'Kneel, sit back on your heels, reach your arms forward on the floor and rest your forehead down. Breathe slowly.',
+ A:{h:[60,101],s:[72,108],eA:[46,114],hA:[20,116],p:[120,100],kA:[84,116],fA:[130,116]}},
+lunge:{name:'Hip flexor stretch',how:'Kneel on one knee, other foot in front. Keep your back straight and push your hips gently forward. Switch sides.',
+ A:{h:[100,36],s:[100,48],eA:[90,66],hA:[74,86],p:[102,86],kA:[70,90],fA:[64,118],kB:[136,116],fB:[164,114]}}
+};
+Object.assign(EX,{
+pike:{name:'Pike push-up',how:'Make an upside-down V: hands and feet on the floor, hips high. Bend your elbows and lower the top of your head toward the floor, push back up. Builds handstand strength.',per:2.6,
+ A:{h:[66,96],s:[72,84],eA:[66,100],hA:[60,116],p:[106,48],kA:[128,83],fA:[150,118]},
+ B:{h:[66,108],s:[76,98],eA:[86,108],hA:[60,116],p:[110,58],kA:[130,88],fA:[150,118]}},
+decline:{name:'Decline push-up',how:'Push-up with your feet up on a bed or sofa. Body straight, lower your chest to the floor, push up. Harder than a normal push-up.',per:2.6,
+ prop:'<rect x="150" y="86" width="46" height="32" rx="3" fill="none" stroke="var(--prop)" stroke-width="2"/>',
+ A:{h:[44,60],s:[56,64],eA:[56,90],hA:[56,116],p:[116,74],kA:[146,79],fA:[176,84]},
+ B:{h:[44,96],s:[56,98],eA:[74,106],hA:[56,116],p:[116,91],kA:[146,88],fA:[176,84]}},
+lunge2:{name:'Reverse lunge',how:'Stand tall, hands on hips. Step one foot back and lower until your back knee nearly touches the floor. Push through the front heel to stand. Switch legs.',per:2.6,
+ A:{h:[100,20],s:[100,33],eA:[110,50],hA:[102,66],p:[100,70],kA:[100,94],fA:[100,118]},
+ B:{h:[104,33],s:[104,46],eA:[114,62],hA:[106,78],p:[104,84],kA:[80,90],fA:[80,118],kB:[116,112],fB:[140,116]}},
+hollow:{name:'Hollow hold',how:'Lie on your back, press your lower back into the floor. Lift your shoulders, arms and straight legs a little off the floor like a banana. Hold.',
+ A:{h:[44,104],s:[58,108],eA:[42,96],hA:[26,86],p:[110,116],kA:[140,110],fA:[170,104]}},
+sbridge:{name:'Single-leg glute bridge',how:'Same as a glute bridge, but keep one leg straight in the air. Push through the other heel, lift your hips, lower slowly. Switch legs.',per:2.4,
+ A:{h:[28,110],s:[44,114],eA:[70,116],hA:[94,116],p:[100,114],kA:[126,90],fA:[146,116],kB:[128,104],fB:[156,94]},
+ B:{h:[28,110],s:[44,114],eA:[70,116],hA:[94,116],p:[100,94],kA:[130,84],fA:[146,116],kB:[130,84],fB:[160,74]}},
+wallhold:{name:'Chest-to-wall handstand',how:'Start in a wall plank, walk your feet up and your hands toward the wall until your body is almost straight upside down, chest facing the wall. Hold, then walk down slowly.',
+ prop:'<line x1="154" y1="2" x2="154" y2="118" stroke="var(--prop)" stroke-width="3"/>',
+ A:{h:[124,100],s:[134,88],eA:[132,102],hA:[130,116],p:[142,50],kA:[146,30],fA:[150,10]}},
+jacks:{name:'Jumping jacks',how:'Jump your feet out wide as your arms go up overhead, jump back in as they come down. Land softly on the balls of your feet.',per:1,
+ A:{h:[100,20],s:[100,34],eA:[90,52],hA:[86,68],eB:[110,52],hB:[114,68],p:[100,72],kA:[95,95],fA:[94,118],kB:[105,95],fB:[106,118]},
+ B:{h:[100,18],s:[100,32],eA:[86,22],hA:[78,6],eB:[114,22],hB:[122,6],p:[100,70],kA:[88,94],fA:[76,118],kB:[112,94],fB:[124,118]}},
+highknees:{name:'High knees',how:'Run in place bringing each knee up to hip height, fast. Pump your arms. Stay on the balls of your feet.',per:.5,
+ A:{h:[100,20],s:[100,33],eA:[90,48],hA:[86,62],eB:[110,50],hB:[116,62],p:[100,70],kA:[78,68],fA:[84,92],kB:[100,94],fB:[100,118]},
+ B:{h:[100,20],s:[100,33],eA:[110,50],hA:[116,62],eB:[90,48],hB:[86,62],p:[100,70],kA:[100,94],fA:[100,118],kB:[78,68],fB:[84,92]}},
+climber:{name:'Mountain climbers',how:'Hold a push-up position. Drive one knee toward your chest, switch legs quickly like running. Keep hips low.',per:.7,
+ A:{h:[52,63],s:[62,68],eA:[62,92],hA:[62,116],p:[115,90],kA:[100,100],fA:[124,112],kB:[142,101],fB:[170,112]},
+ B:{h:[52,63],s:[62,68],eA:[62,92],hA:[62,116],p:[115,90],kA:[142,101],fA:[170,112],kB:[100,100],fB:[124,112]}}
+});
+EX.buttkick={name:'Butt kicks',how:'Jog in place, kicking each heel back up toward your bum. Swing your arms. Stay light on the balls of your feet.',per:.7,
+ A:{h:[100,20],s:[100,33],eA:[90,48],hA:[86,62],eB:[110,50],hB:[116,62],p:[100,70],kA:[102,95],fA:[124,76],kB:[100,94],fB:[100,118]},
+ B:{h:[100,20],s:[100,33],eA:[110,50],hA:[116,62],eB:[90,48],hB:[86,62],p:[100,70],kA:[100,94],fA:[100,118],kB:[102,95],fB:[124,76]}};
+EX.jog.A=EX.march.A;EX.jog.B=EX.march.B;
+
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TYPE={Mon:'push',Tue:'legs',Wed:'skill',Thu:'push',Fri:'legs',Sat:'skill',Sun:'easy'};
+const TITLE={push:'Push + core day',legs:'Legs + pull day',skill:'Handstand + cardio day',easy:'Easy day: light cardio + stretch'};
+const warmup=[['armcircles','1.5 minutes'],['march','2 minutes'],['squat','10 slow reps']];
+const P={
+ push:[
+  [['pushup','4 sets × 12 reps'],['pike','3 sets × 6 reps'],['plank','3 holds × 45 sec'],['superman','3 holds × 30 sec']],
+  [['pushup','4 sets × 15 reps'],['pike','3 sets × 8 reps'],['plank','3 holds × 60 sec'],['superman','3 holds × 40 sec']],
+  [['decline','4 sets × 10 reps'],['pike','3 sets × 10 reps'],['plank','3 holds × 60 sec'],['superman','3 holds × 45 sec']],
+  [['decline','4 sets × 12 reps'],['pike','4 sets × 10 reps'],['plank','3 holds × 75 sec'],['superman','3 holds × 45 sec']]],
+ legs:[
+  [['squat','4 sets × 20 reps'],['lunge2','3 sets × 10 each leg'],['bridge','3 sets × 20 reps'],['row','4 sets × 8 reps']],
+  [['squat','4 sets × 25 reps'],['lunge2','3 sets × 12 each leg'],['bridge','3 sets × 25 reps'],['row','4 sets × 10 reps']],
+  [['squat','4 sets × 30 reps'],['lunge2','4 sets × 12 each leg'],['sbridge','3 sets × 10 each leg'],['row','4 sets × 12 reps']],
+  [['squat','5 sets × 30 reps'],['lunge2','4 sets × 15 each leg'],['sbridge','3 sets × 12 each leg'],['row','5 sets × 12 reps']]],
+ skill:[
+  [['wallplank','3 holds × 30 sec'],['hollow','3 holds × 15 sec']],
+  [['wallplank','3 holds × 45 sec'],['hollow','3 holds × 20 sec']],
+  [['wallhold','3 holds × 20 sec'],['hollow','3 holds × 25 sec']],
+  [['wallhold','4 holds × 30 sec'],['hollow','3 holds × 30 sec']]]
+};
+function plan(w,d){
+ const t=TYPE[d],S=[],late=w>=3;
+ S.push({title:'1. Warm-up · 5 min',note:'Every day before you start.',items:warmup});
+ if(t==='push'||t==='legs')S.push({title:'2. Strength · ~20 min',note:'Rest 60s between sets. If the last 2 reps of a set feel easy, add 3 reps next time.',items:P[t][w-1]});
+ if(t==='skill')S.push({title:'2. Handstand + core · ~8 min',note:'Rest 60s between holds. Come down if your wrists hurt.',items:P.skill[w-1]});
+ if(t==='easy'){
+  S.push({title:'2. Light cardio · 15 min',note:'Easy pace. You should be able to talk.',items:[['march','8 minutes'],['stepjack','7 minutes']]});
+  S.push({title:'3. Stretch · 10 min',note:'Hold each one, breathe slowly. Do both sides.',items:[['hamstring','30 sec × 2'],['quad','30 sec each leg'],['chest','30 sec each arm'],['child','1 minute'],['lunge','30 sec each side']]});
+ } else {
+  const r=t==='skill'?(late?6:5):3,moves=late?['highknees','jacks','climber','boxing']:['jog','stepjack','buttkick','boxing'];
+  S.push({circuit:{rounds:r,moves},title:`3. Cardio circuit · ${r} rounds (${r*4} min)`,note:`Do each move 45 sec, rest 15 sec, go to the next. All 4 moves = 1 round. Repeat ${r} times. Rest 1 min between rounds if needed.`,items:moves.map(k=>[k,'45 sec'])});
+ }
+ return S;
+}
+
+const NS='http://www.w3.org/2000/svg';
+const BONES=[['s','eB',1],['eB','hB',1],['p','kB',1],['kB','fB',1],['s','p',0],['s','eA',0],['eA','hA',0],['p','kA',0],['kA','fA',0]];
+function full(p){const q=Object.assign({},p);q.eB=q.eB||q.eA;q.hB=q.hB||q.hA;q.kB=q.kB||q.kA;q.fB=q.fB||q.fA;return q}
+let figs=[];
+function makeFig(key,noPush){
+ const e=EX[key],svg=document.createElementNS(NS,'svg');
+ svg.setAttribute('viewBox','0 0 200 125');svg.setAttribute('aria-label',e.name);
+ svg.innerHTML='<line x1="6" y1="119" x2="194" y2="119" stroke="var(--line)" stroke-width="2"/>'+(e.prop||'');
+ const A=full(e.A),B=e.B?full(e.B):null,lines=[];
+ BONES.forEach(b=>{const l=document.createElementNS(NS,'line');l.setAttribute('stroke','var(--fig)');l.setAttribute('stroke-width','5');l.setAttribute('stroke-linecap','round');if(b[2])l.setAttribute('opacity','.4');svg.appendChild(l);lines.push(l)});
+ const head=document.createElementNS(NS,'circle');head.setAttribute('r','8');head.setAttribute('fill','var(--card)');head.setAttribute('stroke','var(--fig)');head.setAttribute('stroke-width','4');svg.appendChild(head);
+ const f={A,B,lines,head,per:e.per||2};draw(f,0);if(B&&!noPush)figs.push(f);if(B)svg._f=f;return svg;
+}
+function draw(f,t){
+ const P={};for(const k in f.A){const a=f.A[k],b=f.B?f.B[k]:a;P[k]=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]}
+ BONES.forEach((b,i)=>{const l=f.lines[i];l.setAttribute('x1',P[b[0]][0]);l.setAttribute('y1',P[b[0]][1]);l.setAttribute('x2',P[b[1]][0]);l.setAttribute('y2',P[b[1]][1])});
+ f.head.setAttribute('cx',P.h[0]);f.head.setAttribute('cy',P.h[1]);
+}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function loop(ms){if(!reduce)figs.concat(dfig?[dfig]:[]).forEach(f=>draw(f,.5-.5*Math.cos(ms/1000*2*Math.PI/f.per)));requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+
+function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+const todayIdx=(new Date().getDay()+6)%7,todayKey=new Date().toLocaleDateString('en-CA');
+function monday(d){const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+let planStart=store('planStart')||'2026-11-08T18:30:00.000Z';
+if(!planStart){planStart=monday(new Date()).toISOString();store('planStart',planStart)}
+const curWeek=Math.min(4,Math.max(1,Math.round((monday(new Date())-new Date(planStart))/6048e5)+1));
+let week=curWeek,day=DAYS[todayIdx],cards={};
+const fmt=s=>{s=Math.max(0,s);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')};
+
+function stepsFor(dose){
+ let m,S=[];
+ if(m=dose.match(/(\d+) sets × (\d+) (reps|each leg)/)){const n=+m[1],r=+m[2],each=m[3]==='each leg';
+  for(let i=1;i<=n;i++){S.push({k:'reps',phase:`Set ${i} of ${n}`,big:`Do ${r} reps${each?' each leg':''}`,say:`Set ${i} of ${n}. ${r} reps${each?' each leg':''}.`});
+   if(i<n)S.push({k:'rest',dur:60,phase:'Rest',big:`Coming up: set ${i+1} of ${n}`,say:'Rest, 60 seconds.'})}return S}
+ if(m=dose.match(/(\d+) slow reps/))return[{k:'reps',phase:'1 set',big:`Do ${m[1]} slow reps`,say:`${m[1]} slow reps.`}];
+ const ready={k:'rest',dur:5,phase:'Get ready',big:'Get into position',say:'Get into position.'};
+ const holds=(n,d,rest)=>{S.push(ready);
+  for(let i=1;i<=n;i++){S.push({k:'hold',dur:d,phase:`Hold ${i} of ${n}`,big:'Hold it',say:`Hold ${i} of ${n}. ${d} seconds.`});
+   if(i<n)S.push({k:'rest',dur:rest,phase:'Rest',big:`Coming up: hold ${i+1} of ${n}`,say:`Rest, ${rest} seconds.`})}return S};
+ if(m=dose.match(/(\d+) holds × (\d+) sec/))return holds(+m[1],+m[2],60);
+ if(m=dose.match(/(\d+) sec × (\d+)/))return holds(+m[2],+m[1],15);
+ if(m=dose.match(/(\d+) sec each (\w+)/)){const d=+m[1],w=m[2];
+  return[ready,{k:'hold',dur:d,phase:`First ${w}`,big:'Hold it',say:`${d} seconds.`},{k:'rest',dur:5,phase:'Switch',big:`Switch ${w}`,say:`Switch ${w}.`},{k:'hold',dur:d,phase:`Second ${w}`,big:'Hold it',say:`${d} seconds.`}]}
+ if(m=dose.match(/([\d.]+) minutes?/)){const mins=parseFloat(m[1]);return[{k:'hold',dur:Math.round(mins*60),phase:'Timer',big:'Keep going',say:`${mins} minutes.`}]}
+ return null;
+}
+function circuitSteps(rounds,moves){
+ const N=k=>EX[k].name;
+ const S=[{k:'rest',dur:5,phase:'Get ready',big:`First: ${N(moves[0])}`,ex:moves[0],say:`${rounds} rounds. First up, ${N(moves[0])}.`}];
+ for(let r=1;r<=rounds;r++)moves.forEach((mv,j)=>{
+  S.push({k:'hold',dur:45,phase:`Round ${r} of ${rounds} · move ${j+1} of ${moves.length}`,big:N(mv),ex:mv,say:(j===0&&r>1?`Round ${r}. `:'')+`${N(mv)}.`});
+  if(!(r===rounds&&j===moves.length-1)){const nx=moves[(j+1)%moves.length];S.push({k:'rest',dur:15,phase:'Rest',big:`Coming up: ${N(nx)}`,ex:nx,say:`Rest. Coming up, ${N(nx)}.`})}
+ });
+ return S;
+}
+
+function webSpeech(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
+ let rec=null,manual=false,cb={p:()=>{},f:()=>{},s:()=>{}},lastErr='';
+ const make=()=>{const r=new SR();r.lang='en-IN';r.continuous=true;r.interimResults=true;r.maxAlternatives=1;
+  r.onstart=()=>cb.s({state:'listening'});
+  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();if(e.results[i].isFinal)cb.f({text:t});else cb.p({text:t})}};
+  r.onerror=e=>{lastErr=e.error};
+  r.onend=()=>{const reason=manual?'stopped':(lastErr==='not-allowed'||lastErr==='service-not-allowed')?'not_granted':'ended';manual=false;lastErr='';rec=null;cb.s({state:'idle',reason})};
+  return r};
+ return{start(){return new Promise((res,rej)=>{try{if(rec)return res();manual=false;rec=make();rec.start();res()}catch(e){rej({code:'error'})}})},
+  stop(){manual=true;try{rec&&rec.stop()}catch(e){}return Promise.resolve()},
+  onPartial(f){cb.p=f},onFinal(f){cb.f=f},onState(f){cb.s=f}};
+}
+const cu=n=>Promise.resolve(n==='dictation'?webSpeech():null);
+let TTS=null,DICT=null,dictChecked=false,listening=false,coach=store('coach')!=='0',ignoreUntil=0,heard='',micNote='',lastCmdAt=0,lastCmdText='',wantMic=false,retries=0;
+cu('tts').then(t=>{TTS=t});
+cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
+ d.onState(({state,reason})=>{listening=state==='listening';
+  if(listening){retries=0;micNote=''}
+  else if(reason==='not_granted'){wantMic=false;micNote='Microphone is blocked. Tap the icon left of the address bar, allow Microphone, then reload.'}
+  else if(reason==='stopped'||reason==='viewer_stopped')wantMic=false;
+  else if(wantMic&&reason!=='hidden'){
+   if(retries<6){retries++;micNote='Reconnecting mic…';setTimeout(tryStart,600*retries)}
+   else micNote='Mic keeps dropping. Tap 🎙 to start again.'}
+  paintVoice()});
+ const hear=(text,final)=>{heard=text;paintVoice();if(Date.now()<ignoreUntil)return;
+  const c=detect(text);if(!c)return;
+  if(c===lastCmdText&&Date.now()-lastCmdAt<2500)return;
+  lastCmdText=c;lastCmdAt=Date.now();run(c)};
+ d.onPartial(({text})=>hear(text,false));
+ d.onFinal(({text})=>{hear(text,true);lastCmdText=''});
+ paintVoice()});
+function say(text){
+ if(!coach||!text)return;
+ const est=Date.now()+text.split(' ').length*420+1200;ignoreUntil=Math.max(ignoreUntil,est);
+ const end=()=>{ignoreUntil=Math.min(ignoreUntil,Date.now()+700)};
+ const local=()=>{try{const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.onend=end;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
+ if(TTS&&!listening)TTS.speak(text,{language:'en'}).then(end,local);else local();
+}
+function detect(text){
+ const t=' '+text.toLowerCase().replace(/[^a-z ]/g,' ')+' ',has=w=>t.includes(' '+w+' ');
+ if(t.includes('next exercise'))return 'nextex';
+ if(has('pause')||has('stop')||has('wait'))return 'pause';
+ if(has('next')||has('skip')||has('done'))return 'next';
+ if(has('go')||has('start')||has('resume')||has('continue')||has('play'))return 'go';
+ if(has('close')||has('exit'))return 'close';
+ return null;
+}
+function run(c){
+ if(c==='nextex')nextItem();
+ else if(c==='pause'){if(R&&!R.pauseAt)togglePause()}
+ else if(c==='next'){if(R)advance();else if(upNext!=null)startItem(upNext)}
+ else if(c==='go'){if(R&&R.pauseAt)togglePause();else if(!R&&upNext!=null)startItem(upNext)}
+ else if(c==='close')stopRun();
+}
+function tryStart(){
+ if(!DICT||!wantMic||listening||!$('bar').classList.contains('open'))return;
+ let p;try{p=DICT.start()}catch(e){p=Promise.reject(e)}
+ Promise.resolve(p).catch(e=>{const c=(e&&(e.code||e.message))||'error';
+  if(c==='not_granted'){wantMic=false;micNote='Microphone was blocked. Allow it for claude.ai in Chrome’s site settings, then reload.'}
+  else micNote='Mic dropped. Tap 🎙 to start again.';paintVoice()});
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(tryStart,400)});
+function command(text){const c=detect(text);if(c)run(c)}
+
+let AC,WL,R=null,queue=[],runQueue=[],upNext=null,dfig=null,dfigKey=null;
+function unlock(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}}
+function beep(f,d){try{if(!AC)return;const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.25,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}
+async function wake(){try{WL=WL||await navigator.wakeLock.request('screen')}catch(e){}}
+function sleep(){try{WL&&WL.release()}catch(e){}WL=null}
+function sess(){try{return JSON.parse(store('sess-'+todayKey))||null}catch(e){return null}}
+function sessSave(o){store('sess-'+todayKey,JSON.stringify(o))}
+function sessTime(){const s=sess();if(!s)return null;return((R?Date.now():s.e)-s.s)/1000}
+const $=id=>document.getElementById(id);
+
+function setFig(key){
+ if(key===dfigKey)return;dfigKey=key;const box=$('bFig');box.innerHTML='';
+ const svg=makeFig(key,true);box.appendChild(svg);dfig=svg._f||null;
+ $('bHow').textContent=EX[key].how;
+}
+function openDrawer(){unlock();wake();document.body.classList.add('baropen');$('bar').classList.add('open')}
+function startItem(qi,fromUser){
+ if(fromUser)runQueue=queue;
+ const it=runQueue[qi];if(!it)return;
+ openDrawer();
+ if(!sess())sessSave({s:Date.now(),e:Date.now()});
+ R={name:it.name,steps:it.steps,ids:it.ids,queue:runQueue,qi,i:0,t0:Date.now(),pauseAt:null,lastTick:-1};
+ upNext=null;$('bName').textContent=it.name;
+ markLive();enterStep(true);
+}
+function enterStep(first){const st=R.steps[R.i];R.t0=Date.now();R.lastTick=-1;
+ setFig(st.ex);
+ $('bPhase').textContent=st.phase;$('bPhase').className='bphase'+(st.k==='rest'?' rest':'');
+ $('bBig').textContent=st.big;
+ $('bPause').textContent='Pause';$('bPause').style.display='';
+ $('bNext').textContent=st.k==='reps'?'Set done ✓':st.k==='rest'?'Skip rest':'Skip';
+ const nx=R.queue[R.qi+1];$('bUp').textContent=nx?`After this: ${nx.name}`:'Last exercise of the day';
+ beep(st.k==='rest'?520:880,.25);buzz();
+ say((first?R.name+'. ':'')+st.say);paint();
+}
+function advance(){if(R.pauseAt){R.t0+=Date.now()-R.pauseAt;R.pauseAt=null}R.i++;if(R.i>=R.steps.length)finish();else enterStep(false)}
+function togglePause(){if(!R)return;if(R.pauseAt){R.t0+=Date.now()-R.pauseAt;R.pauseAt=null;$('bPause').textContent='Pause';say('Go.')}else{R.pauseAt=Date.now();$('bPause').textContent='Resume';say('Paused.')}paint()}
+function nextUndone(q,from){for(let i=from;i<q.length;i++)if(!q[i].ids.every(id=>store(id)==='1'))return i;return null}
+function finish(){
+ const ids=R.ids,name=R.name,q=R.queue,qi=R.qi,s=sess();if(s){s.e=Date.now();sessSave(s)}
+ ids.forEach(id=>{store(id,'1');const c=cards[id];if(c){c.cb.checked=true;c.el.classList.add('done')}});
+ R=null;markLive();beep(988,.18);setTimeout(()=>beep(1319,.3),200);buzz();
+ const n=nextUndone(q,qi+1);upNext=n;runQueue=q;
+ $('bPhase').textContent='Finished';$('bPhase').className='bphase';$('bTime').textContent='✓';$('bProg').style.width='100%';
+ if(n!=null){$('bBig').textContent=`Up next: ${q[n].name}`;$('bNext').textContent='▶ Start next';$('bPause').textContent='Close';$('bUp').textContent='Rest as long as you need';
+  say(`${name} complete. Coming up, ${q[n].name}. Say go when you're ready.`)}
+ else{$('bBig').textContent='Workout complete for today';$('bNext').textContent='Close';$('bPause').style.display='none';$('bUp').textContent='';
+  say(`${name} complete. That's the whole workout for today. Great work.`)}
+ paintClock();
+}
+function nextItem(){
+ const q=R?R.queue:runQueue,from=R?R.qi+1:(upNext!=null?upNext:0);
+ const n=nextUndone(q,from);if(n==null)return;R=null;runQueue=q;startItem(n);
+}
+function stopRun(){const s=sess();if(s&&R){s.e=Date.now();sessSave(s)}R=null;upNext=null;markLive();
+ try{TTS&&TTS.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}
+ wantMic=false;if(DICT&&listening){try{DICT.stop()}catch(e){}}
+ $('bar').classList.remove('open');document.body.classList.remove('baropen');sleep();paintClock()}
+function markLive(){for(const id in cards)cards[id].el.classList.toggle('live',!!R&&R.ids.includes(id))}
+function paint(){
+ if(!R)return;const st=R.steps[R.i],now=R.pauseAt||Date.now(),el=(now-R.t0)/1000;
+ if(st.k==='reps'){$('bTime').textContent=fmt(el);$('bProg').style.width=(R.i/R.steps.length*100)+'%'}
+ else{const rem=st.dur-el;$('bTime').textContent=fmt(Math.ceil(rem));$('bProg').style.width=Math.min(100,el/st.dur*100)+'%';
+  const sec=Math.ceil(rem);if(!R.pauseAt&&sec<=3&&sec>0&&sec!==R.lastTick){R.lastTick=sec;beep(660,.08)}
+  if(!R.pauseAt&&rem<=0){advance();return}}
+ $('bTime').classList.toggle('paused',!!R.pauseAt);
+}
+function paintClock(){const t=sessTime();$('bFoot').textContent=t==null?'':`Workout time today ${fmt(t)}`;
+ const c=$('clock');if(!c)return;c.style.display=t==null?'none':'';if(t!=null)c.textContent='⏱ '+fmt(t)}
+function paintVoice(){
+ const m=$('bMic'),h=$('bMicHint');
+ m.classList.toggle('on',listening);m.classList.toggle('off',!DICT);
+ m.textContent=listening?'🎙 Listening…':'🎙 Voice control';
+ if(!DICT){h.textContent=dictChecked?'Voice control needs Chrome. Open this page in Chrome to use it.':'Checking voice control…';return}
+ if(micNote&&!listening){h.textContent=micNote;return}
+ h.textContent=listening?(heard?`Heard: “${heard}”`:'Say “pause”, “go”, “next” or “next exercise”.'):'Tap to control the timer with your voice.';
+}
+function paintCoach(){$('bCoach').classList.toggle('on',coach);$('bCoach').textContent=coach?'🔊 Coach on':'🔇 Coach off'}
+setInterval(()=>{paint();paintClock()},250);
+$('bPause').onclick=()=>{if(R)togglePause();else stopRun()};
+$('bNext').onclick=()=>{if(R)advance();else if(upNext!=null)startItem(upNext);else stopRun()};
+$('bClose').onclick=stopRun;
+$('bCoach').onclick=()=>{coach=!coach;store('coach',coach?'1':'0');paintCoach();if(!coach){try{TTS&&TTS.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}};
+$('bMic').onclick=()=>{
+ if(!DICT){paintVoice();return}
+ if(listening){wantMic=false;DICT.stop().catch(()=>{});return}
+ micNote='';heard='';wantMic=true;retries=0;
+ let p;try{p=DICT.start()}catch(e){p=Promise.reject(e)}
+ $('bMicHint').textContent='Allow microphone access if asked…';
+ Promise.resolve(p).catch(e=>{const c=(e&&(e.code||e.message))||'error';
+  micNote=c==='not_granted'?'Microphone was blocked. Allow it for claude.ai in Chrome’s site settings (lock icon in the address bar), then reload.':c==='dismissed'?'Permission prompt was closed. Tap again to allow the mic.':`Couldn’t start the mic (${c}).`;
+  listening=false;paintVoice()})};
+paintCoach();paintVoice();
+
+function render(){
+ $('weeks').innerHTML=[1,2,3,4].map(w=>`<button class="${w===week?'on':''} ${w===curWeek?'today':''}" data-w="${w}">Week ${w}</button>`).join('');
+ $('days').innerHTML=DAYS.map((d,i)=>`<button class="${d===day?'on':''} ${i===todayIdx?'today':''}" data-d="${d}">${d}</button>`).join('');
+ const root=$('plan');root.innerHTML='';figs=[];cards={};queue=[];
+ const isToday=week===curWeek&&day===DAYS[todayIdx];
+ const h=document.createElement('div');h.className='name';h.style.fontSize='18px';
+ h.innerHTML=`Week ${week} · ${day} · ${TITLE[TYPE[day]]}`+(isToday?' <span class="clock" id="clock" style="display:none"></span>':'');root.appendChild(h);
+ plan(week,day).forEach((s,si)=>{
+  const t=document.createElement('div');t.className='sec';t.textContent=s.title;root.appendChild(t);
+  const n=document.createElement('p');n.className='secnote';n.textContent=s.note;root.appendChild(n);
+  const ids=s.items.map((_,ii)=>`w${week}-${day}-${si}-${ii}`);
+  if(s.circuit){const qi=queue.length;queue.push({name:'Cardio circuit',steps:circuitSteps(s.circuit.rounds,s.circuit.moves),ids});
+   const b=document.createElement('button');b.className='go wide';b.textContent=`▶ Start circuit · ${s.circuit.rounds} rounds`;
+   b.onclick=()=>startItem(qi,true);root.appendChild(b)}
+  s.items.forEach(([k,dose],ii)=>{
+   const id=ids[ii],c=document.createElement('div');c.className='card';
+   c.appendChild(makeFig(k));
+   const r=document.createElement('div'),steps=s.circuit?null:stepsFor(dose);let qi=-1;
+   if(steps){steps.forEach(x=>x.ex=x.ex||k);qi=queue.length;queue.push({name:EX[k].name,steps,ids:[id]})}
+   r.innerHTML=`<div class="name">${EX[k].name}</div><div class="dose">${dose}</div><div class="how">${EX[k].how}</div><div class="actions">${steps?'<button class="go">▶ Start</button>':''}<label class="chk"><input type="checkbox"> Done</label></div>`;
+   const cb=r.querySelector('input');cb.checked=store(id)==='1';c.classList.toggle('done',cb.checked);
+   cb.onchange=()=>{store(id,cb.checked?'1':'0');c.classList.toggle('done',cb.checked)};
+   if(steps)r.querySelector('.go').onclick=()=>startItem(qi,true);
+   c.appendChild(r);root.appendChild(c);cards[id]={el:c,cb};
+  });
+ });
+ markLive();paintClock();
+}
+$('weeks').onclick=e=>{const w=e.target.dataset.w;if(w){week=+w;render()}};
+$('days').onclick=e=>{const d=e.target.dataset.d;if(d){day=d;render()}};
+render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
