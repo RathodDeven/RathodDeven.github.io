@@ -55,7 +55,8 @@ h1{font-size:20px;font-weight:600;margin:4px 0 12px}
 .bbig{text-align:center;font-weight:600;font-size:18px;color:var(--accent);min-height:26px}
 .prog{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:12px 0}
 .prog div{height:100%;width:0;background:var(--accent);transition:width .25s linear}
-.bbtns{display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.bbtns{display:grid;grid-template-columns:56px 1fr 1.5fr;gap:10px}
+#bBack{font-size:26px;padding:10px 0}
 .bbtns button{border-radius:14px;padding:16px;font-size:16px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text)}
 .bbtns button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 .bup{font-size:13px;color:var(--muted);text-align:center;margin-top:10px;min-height:18px}
@@ -85,7 +86,7 @@ body.baropen{overflow:hidden}
 <div class="btime" id="bTime">0:00</div>
 <div class="bbig" id="bBig"></div>
 <div class="prog"><div id="bProg"></div></div>
-<div class="bbtns"><button id="bPause">Pause</button><button class="pri" id="bNext">Skip</button></div>
+<div class="bbtns"><button id="bBack" aria-label="Go back one step">‹</button><button id="bPause">Pause</button><button class="pri" id="bNext">Skip</button></div>
 <div class="bup" id="bUp"></div>
 <div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
 <div class="bhint" id="bMicHint"></div>
@@ -273,21 +274,27 @@ function circuitSteps(rounds,moves){
 
 function webSpeech(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
- let rec=null,manual=false,held=false,pending=false,cb={p:()=>{},f:()=>{},s:()=>{}},lastErr='';
  const mobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
- const begin=()=>{manual=false;rec=make();rec.start()};
- const make=()=>{const r=new SR();r.lang='en-IN';r.continuous=!mobile;r.interimResults=true;r.maxAlternatives=1;
-  r.onstart=()=>cb.s({state:'listening'});
-  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();if(e.results[i].isFinal)cb.f({text:t});else cb.p({text:t})}};
-  r.onerror=e=>{lastErr=e.error};
-  r.onend=()=>{const reason=manual==='held'?'held':manual?'stopped':(lastErr==='not-allowed'||lastErr==='service-not-allowed')?'not_granted':'ended';
-   manual=false;lastErr='';rec=null;cb.s({state:'idle',reason});
-   if(pending&&!held){pending=false;try{begin()}catch(e){}}};
-  return r};
- return{start(){return new Promise((res,rej)=>{try{held=false;if(rec)return res();begin();res()}catch(e){rej({code:'error'})}})},
-  stop(){held=false;pending=false;manual=true;try{rec&&rec.abort()}catch(e){}return Promise.resolve()},
-  hold(){held=true;pending=false;if(rec){manual='held';try{rec.abort()}catch(e){}}},
-  unhold(){if(!held)return;held=false;if(rec)pending=true;else{try{begin()}catch(e){}}},
+ let rec=null,held=false,wantOn=false,lastErr='',lastEv=0,cb={p:()=>{},f:()=>{},s:()=>{}};
+ const kill=()=>{if(rec){const r=rec;rec=null;try{r.abort()}catch(e){}}};
+ const begin=()=>{kill();const r=new SR();r.lang='en-IN';r.continuous=!mobile;r.interimResults=true;r.maxAlternatives=1;
+  rec=r;lastEv=Date.now();lastErr='';
+  r.onstart=()=>{if(r!==rec)return;lastEv=Date.now();cb.s({state:'listening'})};
+  r.onaudiostart=r.onsoundstart=r.onspeechstart=()=>{if(r===rec)lastEv=Date.now()};
+  r.onresult=e=>{if(r!==rec)return;lastEv=Date.now();
+   for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();if(e.results[i].isFinal)cb.f({text:t});else cb.p({text:t})}};
+  r.onerror=e=>{if(r===rec)lastErr=e.error};
+  r.onend=()=>{if(r!==rec)return;rec=null;const err=lastErr;lastErr='';
+   if(err==='not-allowed'||err==='service-not-allowed'){wantOn=false;cb.s({state:'idle',reason:'not_granted'});return}
+   if(wantOn&&!held){setTimeout(()=>{if(wantOn&&!held&&!rec){try{begin()}catch(e){}}},250);return}
+   cb.s({state:'idle',reason:wantOn?'held':'stopped'})};
+  r.start()};
+ setInterval(()=>{if(wantOn&&!held&&(!rec||Date.now()-lastEv>12000)){try{begin()}catch(e){}}},3000);
+ return{
+  start(){wantOn=true;held=false;try{begin();return Promise.resolve()}catch(e){return Promise.reject({code:'error'})}},
+  stop(){wantOn=false;held=false;kill();cb.s({state:'idle',reason:'stopped'});return Promise.resolve()},
+  hold(){if(!wantOn)return;held=true;kill();cb.s({state:'idle',reason:'held'})},
+  unhold(){if(!held)return;held=false;if(wantOn){try{begin()}catch(e){}}},
   onPartial(f){cb.p=f},onFinal(f){cb.f=f},onState(f){cb.s=f}};
 }
 const cu=n=>Promise.resolve(n==='dictation'?webSpeech():null);
@@ -297,7 +304,7 @@ cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
  d.onState(({state,reason})=>{listening=state==='listening';
   if(listening){retries=0;micNote=''}
   else if(reason==='not_granted'){wantMic=false;micNote='Microphone is blocked. Tap the icon left of the address bar, allow Microphone, then reload.'}
-  else if(reason==='held')micNote='';
+  else if(reason==='held'){micNote='';paintVoice();return}
   else if(reason==='stopped'||reason==='viewer_stopped')wantMic=false;
   else if(wantMic&&reason!=='hidden'){
    if(retries<6){retries++;micNote='Reconnecting mic…';setTimeout(tryStart,600*retries)}
@@ -305,7 +312,7 @@ cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
   paintVoice()});
  const hear=(text,final)=>{heard=text;paintVoice();if(Date.now()<ignoreUntil)return;
   const c=detect(text);if(!c)return;
-  if(c===lastCmdText&&Date.now()-lastCmdAt<2500)return;
+  if(c===lastCmdText&&Date.now()-lastCmdAt<1500)return;
   lastCmdText=c;lastCmdAt=Date.now();run(c)};
  d.onPartial(({text})=>hear(text,false));
  d.onFinal(({text})=>{hear(text,true);lastCmdText=''});
@@ -323,16 +330,29 @@ function say(text){
  try{const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.onend=end;u.onerror=end;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){end()}
 }
 function detect(text){
- const t=' '+text.toLowerCase().replace(/[^a-z ]/g,' ')+' ',has=w=>t.includes(' '+w+' ');
- if(t.includes('next exercise'))return 'nextex';
- if(has('pause')||has('stop')||has('wait'))return 'pause';
- if(has('next')||has('skip')||has('done'))return 'next';
- if(has('go')||has('start')||has('resume')||has('continue')||has('play'))return 'go';
- if(has('close')||has('exit'))return 'close';
+ const t=' '+text.toLowerCase().replace(/[^a-z ]/g,' ').replace(/\s+/g,' ')+' ',any=a=>a.some(w=>t.includes(' '+w+' '));
+ if(any(['next exercise','next exercises','skip exercise','next workout']))return 'nextex';
+ if(any(['back','go back','previous','undo','bag','buck','beck','bak']))return 'back';
+ if(any(['pause','pose','paws','pauses','poses','pas','porz','stop','wait','hold on']))return 'pause';
+ if(any(['restart','again','repeat']))return 'restart';
+ if(any(['next','nest','necks','neck','skip','done','dun']))return 'next';
+ if(any(['go','resume','continue','play','start','begin','ok go']))return 'go';
+ if(any(['close','exit']))return 'close';
  return null;
 }
+function back(){
+ if(R&&R.i===0&&R.qi>0){lastDone={q:R.queue,qi:R.qi-1};R=null}
+ if(R){if(R.pauseAt){R.pauseAt=null;$('bPause').textContent='Pause'}R.i=Math.max(0,R.i-1);enterStep(false);return}
+ if(lastDone){const{q,qi}=lastDone,it=q[qi];lastDone=null;
+  it.ids.forEach(id=>{store(id,'0');const c=cards[id];if(c){c.cb.checked=false;c.el.classList.remove('done')}});
+  runQueue=q;startItem(qi,false,it.steps.length-1)}
+}
+function restartStep(){if(!R)return;if(R.pauseAt){R.pauseAt=null;$('bPause').textContent='Pause'}enterStep(false)}
 function run(c){
+ if(!coach&&DICT&&DICT.hold&&wantMic){DICT.hold();setTimeout(()=>{if(wantMic)DICT.unhold()},300)}
  if(c==='nextex')nextItem();
+ else if(c==='back')back();
+ else if(c==='restart')restartStep();
  else if(c==='pause'){if(R&&!R.pauseAt)togglePause()}
  else if(c==='next'){if(R)advance();else if(upNext!=null)startItem(upNext)}
  else if(c==='go'){if(R&&R.pauseAt)togglePause();else if(!R&&upNext!=null)startItem(upNext)}
@@ -348,7 +368,7 @@ function tryStart(){
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(tryStart,400)});
 function command(text){const c=detect(text);if(c)run(c)}
 
-let AC,WL,R=null,queue=[],runQueue=[],upNext=null,dfig=null,dfigKey=null;
+let lastDone=null,AC,WL,R=null,queue=[],runQueue=[],upNext=null,dfig=null,dfigKey=null;
 function unlock(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}}
 function beep(f,d){try{if(!AC)return;const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.connect(g);g.connect(AC.destination);g.gain.setValueAtTime(.25,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d)}catch(e){}}
 function buzz(){try{navigator.vibrate&&navigator.vibrate(150)}catch(e){}}
@@ -365,14 +385,14 @@ function setFig(key){
  $('bHow').textContent=EX[key].how;
 }
 function openDrawer(){unlock();wake();document.body.classList.add('baropen');$('bar').classList.add('open')}
-function startItem(qi,fromUser){
+function startItem(qi,fromUser,atStep){
  if(fromUser)runQueue=queue;
  const it=runQueue[qi];if(!it)return;
  openDrawer();
  if(!sess())sessSave({s:Date.now(),e:Date.now()});
- R={name:it.name,steps:it.steps,ids:it.ids,queue:runQueue,qi,i:0,t0:Date.now(),pauseAt:null,lastTick:-1};
- upNext=null;$('bName').textContent=it.name;
- markLive();enterStep(true);
+ R={name:it.name,steps:it.steps,ids:it.ids,queue:runQueue,qi,i:atStep||0,t0:Date.now(),pauseAt:null,lastTick:-1};
+ upNext=null;lastDone=null;$('bName').textContent=it.name;
+ markLive();enterStep(!atStep);
 }
 function enterStep(first){const st=R.steps[R.i];R.t0=Date.now();R.lastTick=-1;
  setFig(st.ex);
@@ -391,7 +411,7 @@ function finish(){
  const ids=R.ids,name=R.name,q=R.queue,qi=R.qi,s=sess();if(s){s.e=Date.now();sessSave(s)}
  ids.forEach(id=>{store(id,'1');const c=cards[id];if(c){c.cb.checked=true;c.el.classList.add('done')}});
  R=null;markLive();beep(988,.18);setTimeout(()=>beep(1319,.3),200);buzz();
- const n=nextUndone(q,qi+1);upNext=n;runQueue=q;
+ const n=nextUndone(q,qi+1);upNext=n;runQueue=q;lastDone={q,qi};
  $('bPhase').textContent='Finished';$('bPhase').className='bphase';$('bTime').textContent='✓';$('bProg').style.width='100%';
  if(n!=null){$('bBig').textContent=`Up next: ${q[n].name}`;$('bNext').textContent='▶ Start next';$('bPause').textContent='Close';$('bUp').textContent='Rest as long as you need';
   say(`${name} complete. Coming up, ${q[n].name}. Say go when you're ready.`)}
@@ -425,13 +445,14 @@ function paintVoice(){
  if(!DICT){h.textContent=dictChecked?'Voice control needs Chrome. Open this page in Chrome to use it.':'Checking voice control…';return}
  if(micNote&&!listening){h.textContent=micNote;return}
  if(wantMic&&coachTalking){m.classList.add('on');m.textContent='🎙 Listening…';h.textContent='Coach speaking… mic resumes right after';return}
- h.textContent=listening?(heard?`Heard: “${heard}”`:'Say “pause”, “go”, “next” or “next exercise”.'):(wantMic?'Starting mic…':'Tap to control the timer with your voice.');
+ h.textContent=listening?(heard?`Heard: “${heard}”`:'Say: pause · go · next · back · next exercise'):(wantMic?'Starting mic…':'Tap to control the timer with your voice.');
 }
 function paintCoach(){$('bCoach').classList.toggle('on',coach);$('bCoach').textContent=coach?'🔊 Coach on':'🔇 Coach off'}
 setInterval(()=>{paint();paintClock()},250);
 $('bPause').onclick=()=>{if(R)togglePause();else stopRun()};
 $('bNext').onclick=()=>{if(R)advance();else if(upNext!=null)startItem(upNext);else stopRun()};
 $('bClose').onclick=stopRun;
+$('bBack').onclick=back;
 $('bCoach').onclick=()=>{coach=!coach;store('coach',coach?'1':'0');paintCoach();if(!coach){try{TTS&&TTS.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}}};
 $('bMic').onclick=()=>{
  if(!DICT){paintVoice();return}
