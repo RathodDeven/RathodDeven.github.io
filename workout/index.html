@@ -273,15 +273,21 @@ function circuitSteps(rounds,moves){
 
 function webSpeech(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
- let rec=null,manual=false,cb={p:()=>{},f:()=>{},s:()=>{}},lastErr='';
- const make=()=>{const r=new SR();r.lang='en-IN';r.continuous=true;r.interimResults=true;r.maxAlternatives=1;
+ let rec=null,manual=false,held=false,pending=false,cb={p:()=>{},f:()=>{},s:()=>{}},lastErr='';
+ const mobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
+ const begin=()=>{manual=false;rec=make();rec.start()};
+ const make=()=>{const r=new SR();r.lang='en-IN';r.continuous=!mobile;r.interimResults=true;r.maxAlternatives=1;
   r.onstart=()=>cb.s({state:'listening'});
   r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript.trim();if(e.results[i].isFinal)cb.f({text:t});else cb.p({text:t})}};
   r.onerror=e=>{lastErr=e.error};
-  r.onend=()=>{const reason=manual?'stopped':(lastErr==='not-allowed'||lastErr==='service-not-allowed')?'not_granted':'ended';manual=false;lastErr='';rec=null;cb.s({state:'idle',reason})};
+  r.onend=()=>{const reason=manual==='held'?'held':manual?'stopped':(lastErr==='not-allowed'||lastErr==='service-not-allowed')?'not_granted':'ended';
+   manual=false;lastErr='';rec=null;cb.s({state:'idle',reason});
+   if(pending&&!held){pending=false;try{begin()}catch(e){}}};
   return r};
- return{start(){return new Promise((res,rej)=>{try{if(rec)return res();manual=false;rec=make();rec.start();res()}catch(e){rej({code:'error'})}})},
-  stop(){manual=true;try{rec&&rec.stop()}catch(e){}return Promise.resolve()},
+ return{start(){return new Promise((res,rej)=>{try{held=false;if(rec)return res();begin();res()}catch(e){rej({code:'error'})}})},
+  stop(){held=false;pending=false;manual=true;try{rec&&rec.abort()}catch(e){}return Promise.resolve()},
+  hold(){held=true;pending=false;if(rec){manual='held';try{rec.abort()}catch(e){}}},
+  unhold(){if(!held)return;held=false;if(rec)pending=true;else{try{begin()}catch(e){}}},
   onPartial(f){cb.p=f},onFinal(f){cb.f=f},onState(f){cb.s=f}};
 }
 const cu=n=>Promise.resolve(n==='dictation'?webSpeech():null);
@@ -291,6 +297,7 @@ cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
  d.onState(({state,reason})=>{listening=state==='listening';
   if(listening){retries=0;micNote=''}
   else if(reason==='not_granted'){wantMic=false;micNote='Microphone is blocked. Tap the icon left of the address bar, allow Microphone, then reload.'}
+  else if(reason==='held')micNote='';
   else if(reason==='stopped'||reason==='viewer_stopped')wantMic=false;
   else if(wantMic&&reason!=='hidden'){
    if(retries<6){retries++;micNote='Reconnecting mic…';setTimeout(tryStart,600*retries)}
@@ -303,12 +310,17 @@ cu('dictation').then(d=>{DICT=d;dictChecked=true;if(!d){paintVoice();return}
  d.onPartial(({text})=>hear(text,false));
  d.onFinal(({text})=>{hear(text,true);lastCmdText=''});
  paintVoice()});
+let speakSeq=0,coachTalking=false;
 function say(text){
  if(!coach||!text)return;
- const est=Date.now()+text.split(' ').length*420+1200;ignoreUntil=Math.max(ignoreUntil,est);
- const end=()=>{ignoreUntil=Math.min(ignoreUntil,Date.now()+700)};
- const local=()=>{try{const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.onend=end;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}};
- if(TTS&&!listening)TTS.speak(text,{language:'en'}).then(end,local);else local();
+ const id=++speakSeq,ms=text.split(' ').length*420+1200;
+ ignoreUntil=Math.max(ignoreUntil,Date.now()+ms);coachTalking=true;
+ if(wantMic&&DICT&&DICT.hold)DICT.hold();paintVoice();
+ let ended=false;
+ const end=()=>{if(ended||id!==speakSeq)return;ended=true;coachTalking=false;ignoreUntil=Date.now()+400;
+  if(wantMic&&DICT&&DICT.unhold)setTimeout(()=>{if(!coachTalking&&wantMic)DICT.unhold()},250);paintVoice()};
+ setTimeout(end,ms+1500);
+ try{const u=new SpeechSynthesisUtterance(text);u.rate=1.05;u.onend=end;u.onerror=end;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){end()}
 }
 function detect(text){
  const t=' '+text.toLowerCase().replace(/[^a-z ]/g,' ')+' ',has=w=>t.includes(' '+w+' ');
@@ -412,7 +424,8 @@ function paintVoice(){
  m.textContent=listening?'🎙 Listening…':'🎙 Voice control';
  if(!DICT){h.textContent=dictChecked?'Voice control needs Chrome. Open this page in Chrome to use it.':'Checking voice control…';return}
  if(micNote&&!listening){h.textContent=micNote;return}
- h.textContent=listening?(heard?`Heard: “${heard}”`:'Say “pause”, “go”, “next” or “next exercise”.'):'Tap to control the timer with your voice.';
+ if(wantMic&&coachTalking){m.classList.add('on');m.textContent='🎙 Listening…';h.textContent='Coach speaking… mic resumes right after';return}
+ h.textContent=listening?(heard?`Heard: “${heard}”`:'Say “pause”, “go”, “next” or “next exercise”.'):(wantMic?'Starting mic…':'Tap to control the timer with your voice.');
 }
 function paintCoach(){$('bCoach').classList.toggle('on',coach);$('bCoach').textContent=coach?'🔊 Coach on':'🔇 Coach off'}
 setInterval(()=>{paint();paintClock()},250);
