@@ -91,6 +91,7 @@ body.baropen{overflow:hidden}
 <div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
 <div class="bhint" id="bMicHint"></div>
 <div class="bfoot" id="bFoot"></div>
+<div class="bfoot" style="opacity:.6">App version 4</div>
 </div></div>
 <script>
 const EX={
@@ -496,7 +497,8 @@ function render(){
 $('weeks').onclick=e=>{const w=e.target.dataset.w;if(w){week=+w;render()}};
 $('days').onclick=e=>{const d=e.target.dataset.d;if(d){day=d;render()}};
 render();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update()).catch(()=>{});
+ let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded||R)return;reloaded=true;location.reload()})}
 </script>
 </body>
 </html>
