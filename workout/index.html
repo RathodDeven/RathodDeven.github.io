@@ -91,7 +91,7 @@ body.baropen{overflow:hidden}
 <div class="bvoice"><button class="chip" id="bMic">🎙 Voice control</button><button class="chip" id="bCoach">🔊 Coach on</button></div>
 <div class="bhint" id="bMicHint"></div>
 <div class="bfoot" id="bFoot"></div>
-<div class="bfoot" style="opacity:.6">App version 6</div>
+<div class="bfoot" style="opacity:.6">App version 7</div>
 </div></div>
 <script>
 const EX={
@@ -149,7 +149,7 @@ Object.assign(EX,{
 pike:{name:'Pike push-up',how:'Make an upside-down V: hands and feet on the floor, hips high. Bend your elbows and lower the top of your head toward the floor, push back up. Builds handstand strength.',per:2.6,
  A:{h:[66,96],s:[72,84],eA:[66,100],hA:[60,116],p:[106,48],kA:[128,83],fA:[150,118]},
  B:{h:[66,108],s:[76,98],eA:[86,108],hA:[60,116],p:[110,58],kA:[130,88],fA:[150,118]}},
-decline:{name:'Decline push-up',how:'Push-up with your feet up on a bed or sofa. Body straight, lower your chest to the floor, push up. Harder than a normal push-up.',per:2.6,
+decline:{name:'Decline push-up',how:'Push-up with your feet up on a low, steady step or the cot (only if it doesn\'t slide). Body straight, lower your chest to the floor, push up. Harder than a normal push-up.',per:2.6,
  prop:'<rect x="150" y="86" width="46" height="32" rx="3" fill="none" stroke="var(--prop)" stroke-width="2"/>',
  A:{h:[44,60],s:[56,64],eA:[56,90],hA:[56,116],p:[116,74],kA:[146,79],fA:[176,84]},
  B:{h:[44,96],s:[56,98],eA:[74,106],hA:[56,116],p:[116,91],kA:[146,88],fA:[176,84]}},
@@ -174,6 +174,15 @@ climber:{name:'Mountain climbers',how:'Hold a push-up position. Drive one knee t
  A:{h:[52,63],s:[62,68],eA:[62,92],hA:[62,116],p:[115,90],kA:[100,100],fA:[124,112],kB:[142,101],fB:[170,112]},
  B:{h:[52,63],s:[62,68],eA:[62,92],hA:[62,116],p:[115,90],kA:[142,101],fA:[170,112],kB:[100,100],fB:[124,112]}}
 });
+EX.backwidow={name:'Back widow',how:'Lie on your back, knees bent, elbows bent at your sides. Press your elbows into the floor to lift your upper back off it. Hold 2 seconds, lower slowly. Works the upper back.',per:2.6,
+ A:{h:[28,110],s:[44,114],eA:[62,116],hA:[66,98],p:[100,114],kA:[126,90],fA:[146,116]},
+ B:{h:[32,96],s:[46,102],eA:[62,116],hA:[66,98],p:[100,114],kA:[126,90],fA:[146,116]}};
+EX.supermanpull={name:'Superman pull',how:'Lie face down, arms stretched forward, lifted a little. Pull your elbows down to your ribs and squeeze your back, then reach forward again. Like a pull-up, lying down.',per:2.4,
+ A:{h:[40,107],s:[56,113],eA:[36,110],hA:[16,107],p:[110,116],kA:[140,116],fA:[170,116]},
+ B:{h:[42,100],s:[58,108],eA:[76,104],hA:[58,98],p:[110,116],kA:[140,116],fA:[170,116]}};
+EX.towelcurl={name:'Towel curl hold',how:'Stand on the middle of a towel, hold both ends, elbows at your sides. Curl up as hard as you can against the towel and hold. Works the biceps.',
+ prop:'<line x1="80" y1="56" x2="96" y2="117" stroke="var(--warm)" stroke-width="3" stroke-dasharray="5 4"/>',
+ A:{h:[100,20],s:[100,33],eA:[100,54],hA:[80,54],p:[100,70],kA:[100,94],fA:[100,118]}};
 EX.buttkick={name:'Butt kicks',how:'Jog in place, kicking each heel back up toward your bum. Swing your arms. Stay light on the balls of your feet.',per:.7,
  A:{h:[100,20],s:[100,33],eA:[90,48],hA:[86,62],eB:[110,50],hB:[116,62],p:[100,70],kA:[102,95],fA:[124,76],kB:[100,94],fB:[100,118]},
  B:{h:[100,20],s:[100,33],eA:[110,50],hA:[116,62],eB:[90,48],hB:[86,62],p:[100,70],kA:[100,94],fA:[100,118],kB:[102,95],fB:[124,76]}};
@@ -190,10 +199,10 @@ const P={
   [['decline','4 sets × 10 reps'],['pike','3 sets × 10 reps'],['plank','3 holds × 60 sec'],['superman','3 holds × 45 sec']],
   [['decline','4 sets × 12 reps'],['pike','4 sets × 10 reps'],['plank','3 holds × 75 sec'],['superman','3 holds × 45 sec']]],
  legs:[
-  [['squat','4 sets × 20 reps'],['lunge2','3 sets × 10 each leg'],['bridge','3 sets × 20 reps'],['row','4 sets × 8 reps']],
-  [['squat','4 sets × 25 reps'],['lunge2','3 sets × 12 each leg'],['bridge','3 sets × 25 reps'],['row','4 sets × 10 reps']],
-  [['squat','4 sets × 30 reps'],['lunge2','4 sets × 12 each leg'],['sbridge','3 sets × 10 each leg'],['row','4 sets × 12 reps']],
-  [['squat','5 sets × 30 reps'],['lunge2','4 sets × 15 each leg'],['sbridge','3 sets × 12 each leg'],['row','5 sets × 12 reps']]],
+  [['squat','4 sets × 20 reps'],['lunge2','3 sets × 10 each leg'],['bridge','3 sets × 20 reps'],['backwidow','3 sets × 10 reps'],['supermanpull','3 sets × 10 reps'],['towelcurl','3 holds × 20 sec']],
+  [['squat','4 sets × 25 reps'],['lunge2','3 sets × 12 each leg'],['bridge','3 sets × 25 reps'],['backwidow','3 sets × 12 reps'],['supermanpull','3 sets × 12 reps'],['towelcurl','3 holds × 25 sec']],
+  [['squat','4 sets × 30 reps'],['lunge2','4 sets × 12 each leg'],['sbridge','3 sets × 10 each leg'],['backwidow','4 sets × 12 reps'],['supermanpull','4 sets × 12 reps'],['towelcurl','3 holds × 30 sec']],
+  [['squat','5 sets × 30 reps'],['lunge2','4 sets × 15 each leg'],['sbridge','3 sets × 12 each leg'],['backwidow','4 sets × 15 reps'],['supermanpull','4 sets × 15 reps'],['towelcurl','4 holds × 30 sec']]],
  skill:[
   [['wallplank','3 holds × 30 sec'],['hollow','3 holds × 15 sec']],
   [['wallplank','3 holds × 45 sec'],['hollow','3 holds × 20 sec']],
